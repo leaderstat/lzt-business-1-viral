@@ -50,8 +50,13 @@ def bucket(shape: dict, label: int) -> str:
 
 
 def analyse(comparison: dict, key: str, samples) -> dict:
-    by_id = {s.topic_id: s for s in samples}
     entry = comparison["models"][key]
+    if entry["scope"] == "paired_subsample":
+        # otherwise "positives the detector never flagged" would be counted against the
+        # whole test period while the model only ever saw 40 topics
+        scored = set(comparison["paired_subsample"]["topic_ids"])
+        samples = [s for s in samples if s.topic_id in scored]
+    by_id = {s.topic_id: s for s in samples}
     fp, fn = [], []
     for v in entry["verdicts"]:
         sample = by_id.get(v["topic_id"])
