@@ -28,6 +28,13 @@ def peak_window_mean(series, width):
     return max(sum(series[i : i + width]) / width for i in range(len(series) - width + 1))
 
 
+def peak_window_median(series, width):
+    import statistics as st
+    if len(series) < width:
+        return 0.0
+    return max(st.median(series[i : i + width]) for i in range(len(series) - width + 1))
+
+
 def longest_run(series, level):
     best = run = 0
     for v in series:
@@ -43,6 +50,12 @@ RULES = {
     "peak7 >= 3x": lambda o, lab, b: peak_window_mean(lab, 7) >= 3 * b,
     "peak7 >= 2x": lambda o, lab, b: peak_window_mean(lab, 7) >= 2 * b,
     "peak7 >= 1.5x": lambda o, lab, b: peak_window_mean(lab, 7) >= 1.5 * b,
+    "median7 >= 3x": lambda o, lab, b: peak_window_median(lab, 7) >= 3 * b,
+    "median7 >= 2.5x": lambda o, lab, b: peak_window_median(lab, 7) >= 2.5 * b,
+    "median7 >= 2x": lambda o, lab, b: peak_window_median(lab, 7) >= 2 * b,
+    "peak7>=3x AND median7>=2x": lambda o, lab, b: (
+        peak_window_mean(lab, 7) >= 3 * b and peak_window_median(lab, 7) >= 2 * b
+    ),
     "run7 >= 2x": lambda o, lab, b: longest_run(lab, 2 * b) >= 7,
     "run7 >= 1.5x": lambda o, lab, b: longest_run(lab, 1.5 * b) >= 7,
     "label mean >= 1.5x": lambda o, lab, b: sum(lab) / len(lab) >= 1.5 * b,

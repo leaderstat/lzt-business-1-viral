@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -183,6 +184,31 @@ def _model_status(model: str) -> dict | None:
     return None
 
 
+def _paired_subsample(samples, size: int, seed: int):
+    """A seeded, model-independent subset of the test period.
+
+    Qwen3-14B answers at roughly one verdict per several minutes on a CPU-only host, so
+    scoring it on every alarm is not affordable inside this sprint. The mitigation is a
+    *paired* comparison: the subset is drawn once, before any model runs, and every model
+    is then scored on exactly the same topics. That keeps the 0.6B-vs-14B contrast honest
+    (same topics, same labels) at the cost of a wider confidence interval, and the full
+    test period is still reported for the cheap model. The subset is never chosen with any
+    model's output in view.
+    """
+    if size <= 0 or size >= len(samples):
+        return list(samples), None
+    index = sorted(random.Random(seed).sample(range(len(samples)), size))
+    subset = [samples[i] for i in index]
+    return subset, {
+        "size": size,
+        "seed": seed,
+        "of": len(samples),
+        "n_positive": sum(s.label for s in subset),
+        "topic_ids": [s.topic_id for s in subset],
+        "reason": "Qwen3-14B throughput on this host; drawn before any model was run",
+    }
+
+
 def stage_test(args: argparse.Namespace) -> int:
     frozen = _load_frozen()
     samples = load_jsonl(args.test_dataset)
@@ -206,17 +232,34 @@ def stage_test(args: argparse.Namespace) -> int:
         "precision_at_k_curve": precision_at_k_curve(stats_only),
     }
 
+    subset, subsample_meta = _paired_subsample(samples, args.subsample, args.subsample_seed)
+    comparison["paired_subsample"] = subsample_meta
+    heavy = set(args.subsample_models)
+    runs: list[tuple[str, str, list]] = []
     for model in args.models:
+        if subsample_meta is None:
+            runs.append((model, model, samples))
+            continue
+        # cheap models are scored twice: once on the full period (the headline number)
+        # and once on the subset (the only fair basis for comparing against 14B)
+        if model not in heavy:
+            runs.append((model, model, samples))
+        runs.append((f"{model}@subsample", model, subset))
+
+    for key, model, scored_samples in runs:
         unavailable = _model_status(model)
         if unavailable:
-            comparison["models"][model] = unavailable
-            print(f"{model}: {unavailable['reason']}")
+            comparison["models"][key] = unavailable
+            print(f"{key}: {unavailable['reason']}")
             continue
         config = _pipeline_config(frozen, model)
-        result = run_arm(frozen["gate_arm"], samples, config)
+        result = run_arm(frozen["gate_arm"], scored_samples, config)
         details = OllamaClient(config.ollama).show(model).get("details", {})
-        comparison["models"][model] = {
+        comparison["models"][key] = {
             "status": "measured",
+            "model": model,
+            "n_scored": len(scored_samples),
+            "scope": "paired_subsample" if key.endswith("@subsample") else "full_test_period",
             "model_details": details,
             "inference_mode": config.ollama.to_dict(),
             "metrics": result.report.to_dict(),
@@ -241,7 +284,7 @@ def stage_test(args: argparse.Namespace) -> int:
         }
         m = result.report.to_dict()
         print(
-            f"{model}: P={m['precision']:.3f} R={m['recall']:.3f} "
+            f"{key}: P={m['precision']:.3f} R={m['recall']:.3f} "
             f"P@{m['k']}={m['precision_at_k']:.3f} PR-AUC={m['pr_auc']:.3f}"
         )
     _write(comparison, EVAL / "qwen_model_comparison.json")
@@ -254,10 +297,14 @@ def stage_test(args: argparse.Namespace) -> int:
             "n_samples": len(samples),
             "n_positive": sum(s.label for s in samples),
         },
+        "paired_subsample": comparison.get("paired_subsample"),
         "stats_only": comparison["stats_only"]["metrics"],
         "models": {
-            model: (
+            key: (
                 {
+                    "model": data["model"],
+                    "scope": data["scope"],
+                    "n_scored": data["n_scored"],
                     "metrics": data["metrics"],
                     "gate_stats": data["gate_stats"],
                     "precision_at_k_curve": data["precision_at_k_curve"],
@@ -265,7 +312,7 @@ def stage_test(args: argparse.Namespace) -> int:
                 if data.get("status") == "measured"
                 else data
             )
-            for model, data in comparison["models"].items()
+            for key, data in comparison["models"].items()
         },
         "environment": host_report(),
     }
@@ -281,6 +328,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", default=SMOKE_MODEL, help="gate model used for dev selection")
     parser.add_argument("--models", nargs="+", default=[SMOKE_MODEL, TARGET_MODEL])
     parser.add_argument("--bootstrap", type=int, default=1000)
+    parser.add_argument(
+        "--subsample",
+        type=int,
+        default=0,
+        help="score expensive models on a seeded subset of the test period (0 = full period)",
+    )
+    parser.add_argument("--subsample-seed", type=int, default=20250215)
+    parser.add_argument("--subsample-models", nargs="*", default=[TARGET_MODEL])
     args = parser.parse_args(argv)
     return stage_dev(args) if args.stage == "dev" else stage_test(args)
 

@@ -130,12 +130,26 @@ def test_a_spike_that_decays_is_labelled_negative():
     assert evidence["baseline"] == 100.0
 
 
-def test_sustained_growth_needs_both_level_and_persistence():
+def test_a_single_day_spike_does_not_earn_a_positive_label():
+    """The label asks for a week that *held* 3x, not for one enormous day.
+
+    A day at 20x baseline still leaves the best 7-day mean below the threshold, so the
+    hard negative the semantic gate exists to reject stays a negative in the ground truth.
+    """
     observation = [100.0] * 20
-    # Mean clears 3x only because of two enormous days; persistence rejects it.
-    bursty = [2000.0, 2000.0] + [100.0] * 8
-    assert sum(bursty) / len(bursty) >= 3 * 100.0
-    assert label_for(observation, bursty)[0] == 0
+    spike = [100.0] * 5 + [2000.0] + [100.0] * 24
+    label, evidence = label_for(observation, spike)
+    assert label == 0
+    assert evidence["best_week_median_ratio"] < 2.0
+    assert max(spike) >= 20 * evidence["baseline"]  # loud, and still not a trend
+
+
+def test_a_week_long_elevation_earns_a_positive_label():
+    observation = [100.0] * 20
+    wave = [100.0] * 5 + [400.0] * 8 + [150.0] * 17
+    label, evidence = label_for(observation, wave)
+    assert label == 1
+    assert evidence["sustain_days"] == 7
 
 
 def test_label_evidence_lets_a_reviewer_recompute_the_label():
@@ -144,7 +158,8 @@ def test_label_evidence_lets_a_reviewer_recompute_the_label():
     )
     for sample in samples:
         ev = sample.meta["label_evidence"]
-        assert ev["label_window_ratio"] == pytest.approx(5.0)
+        assert ev["best_week_mean_ratio"] == pytest.approx(5.0)
+        assert ev["thresholds"] == [pytest.approx(300.0), pytest.approx(200.0)]
         assert sample.label == 1
 
 

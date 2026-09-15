@@ -49,11 +49,24 @@ from .dataset import Sample, _viral_index
 from .wikipedia import PageviewsClient, daterange
 
 # --------------------------------------------------------------------------- labelling
-# Frozen *before* any metric was computed, mirroring the synthetic corpus so Sprint 01
-# and Sprint 02 measure the same concept of "emerging trend".
-VIRAL_MULTIPLIER = 3.0  # the label window must average >= 3x the pre-alarm baseline ...
-SUSTAIN_MULTIPLIER = 2.0  # ... and spend most of its days above 2x it,
-SUSTAIN_SHARE = 0.6  # "most" = 60% of label-window days.
+# Frozen *before* any detector or gate was scored on this corpus, mirroring the synthetic
+# corpus so Sprint 01 and Sprint 02 measure the same concept of "emerging trend": traffic
+# multiplies by VIRAL_MULTIPLIER relative to its own pre-alarm baseline and *stays* there
+# long enough to be a wave rather than a headline.
+#
+# "Stays there" is operationalised as a SUSTAIN_DAYS-long window, not as a share of the
+# whole label month. The first attempt required the entire 30-day label window to average
+# 3x baseline; on the dev period that matched 1 article out of 335 (0.3%), because real
+# Wikipedia waves crest and decay inside two weeks. A prevalence that low is not a hard
+# problem, it is an unmeasurable one. ``experiments/label_prevalence.py`` reports the
+# prevalence of every candidate rule on the dev period; the multiplier was NOT relaxed to
+# buy positives (3.0 is unchanged, and the weaker 1.5x/2x variants were rejected) — only
+# the duration test changed, from "most of a month" to "a full week". Dev prevalence under
+# the rule below is 5.2% (17/329); the numbers for every rejected variant are in
+# docs/SPRINT02_EXPERIMENT.md so the choice can be audited.
+VIRAL_MULTIPLIER = 3.0  # the best week must *average* 3x the pre-alarm baseline ...
+SUSTAIN_MULTIPLIER = 2.0  # ... and at least half of that week's days must sit above 2x,
+SUSTAIN_DAYS = 7  # where "week" is 7 consecutive days anywhere in the label window.
 
 # --------------------------------------------------------------------------- eligibility
 # Both filters read the observation window only, never the label window.
@@ -162,6 +175,22 @@ def _baseline(series: Sequence[float]) -> float:
     return float(statistics.median(series[:BASELINE_DAYS]))
 
 
+def _best_week(series: Sequence[float], width: int = SUSTAIN_DAYS) -> tuple[float, float]:
+    """``(mean, median)`` of the strongest ``width``-day window in ``series``.
+
+    Both halves are needed, and that is the point. The mean measures *mass* — how much
+    extra attention the week carried — but one 20x day drags a week of baseline days over
+    a 3x mean, and a one-day spike is precisely the false alarm this project exists to
+    reject. The median measures *persistence*: it can only clear 2x if at least four of
+    the seven days did. The window that maximises the mean is the one reported.
+    """
+    if len(series) < width:
+        return 0.0, 0.0
+    windows = [list(series[i : i + width]) for i in range(len(series) - width + 1)]
+    best = max(windows, key=lambda w: sum(w))
+    return sum(best) / width, float(statistics.median(best))
+
+
 def label_for(observation: Sequence[float], label_window: Sequence[float]) -> tuple[int, dict]:
     """Apply the frozen label rule. Returns ``(label, evidence)``.
 
@@ -169,18 +198,22 @@ def label_for(observation: Sequence[float], label_window: Sequence[float]) -> tu
     instead of trusting this function.
     """
     base = _baseline(observation)
+    week_mean, week_median = _best_week(label_window)
     mean_label = sum(label_window) / len(label_window) if label_window else 0.0
-    sustained = (
-        sum(1 for v in label_window if v >= SUSTAIN_MULTIPLIER * base) / len(label_window)
-        if label_window
-        else 0.0
+    label = int(
+        base > 0
+        and week_mean >= VIRAL_MULTIPLIER * base
+        and week_median >= SUSTAIN_MULTIPLIER * base
     )
-    label = int(mean_label >= VIRAL_MULTIPLIER * base and sustained >= SUSTAIN_SHARE)
     return label, {
         "baseline": round(base, 2),
+        "best_week_mean": round(week_mean, 2),
+        "best_week_median": round(week_median, 2),
+        "best_week_mean_ratio": round(week_mean / base, 3) if base else 0.0,
+        "best_week_median_ratio": round(week_median / base, 3) if base else 0.0,
+        "sustain_days": SUSTAIN_DAYS,
         "label_window_mean": round(mean_label, 2),
-        "label_window_ratio": round(mean_label / base, 3) if base else 0.0,
-        "sustained_share": round(sustained, 3),
+        "thresholds": [round(VIRAL_MULTIPLIER * base, 2), round(SUSTAIN_MULTIPLIER * base, 2)],
     }
 
 
@@ -283,7 +316,12 @@ def build_period_dataset(
         label_rule={
             "viral_multiplier": VIRAL_MULTIPLIER,
             "sustain_multiplier": SUSTAIN_MULTIPLIER,
-            "sustain_share": SUSTAIN_SHARE,
+            "sustain_days": SUSTAIN_DAYS,
+            "rule": (
+                f"positive iff the strongest {SUSTAIN_DAYS}-day window of the label window "
+                f"has mean >= {VIRAL_MULTIPLIER}x baseline and median >= "
+                f"{SUSTAIN_MULTIPLIER}x baseline"
+            ),
             "baseline": f"median of the first {BASELINE_DAYS} observation days",
         },
         eligibility={
