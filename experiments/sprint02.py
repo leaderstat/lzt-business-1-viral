@@ -129,8 +129,17 @@ def stage_dev(args: argparse.Namespace) -> int:
     ablation["environment"] = host_report()
     _write(ablation, EVAL / "gate_ablation.json")
 
+    # Arm selection, decided on dev and then frozen. Two filters, in this order:
+    #   1. only LLM arms are candidates — the point of the sprint is the semantic gate;
+    #   2. an arm that lets *nothing* through is not a gate, it is an off switch. Such an
+    #      arm still scores a respectable PR-AUC, because ranking then falls back to the
+    #      detector statistic alone, so selecting on PR-AUC without this filter would
+    #      freeze a configuration that never fires. Recall > 0 is the minimal sanity bar.
     llm_arms = {a: d for a, d in ablation["arms"].items() if a.startswith("llm_")}
-    scored = llm_arms or ablation["arms"]
+    alive = {a: d for a, d in llm_arms.items() if d["metrics"]["recall"] > 0}
+    scored = alive or llm_arms or ablation["arms"]
+    if not alive:
+        print("WARNING: every LLM arm rejected all alarms on the development period")
     best_arm = max(scored.items(), key=lambda kv: kv[1]["metrics"]["pr_auc"])[0]
     operating = choose_operating_point(
         ablation["arms"][best_arm]["precision_at_k_curve"], PRECISION_FLOOR
@@ -144,6 +153,11 @@ def stage_dev(args: argparse.Namespace) -> int:
         "detector_params": best["params"],
         "decision_horizon": best["decision_horizon"],
         "gate_arm": best_arm,
+        "arm_selection": {
+            "rule": "highest PR-AUC among LLM arms that pass at least one alarm",
+            "candidates": {a: d["metrics"]["pr_auc"] for a, d in scored.items()},
+            "degenerate_arms": [a for a in llm_arms if a not in alive],
+        },
         "top_k": operating["k"],
         "operating_point": operating,
         "gate_model_used_for_selection": args.model,
@@ -235,29 +249,39 @@ def stage_test(args: argparse.Namespace) -> int:
     subset, subsample_meta = _paired_subsample(samples, args.subsample, args.subsample_seed)
     comparison["paired_subsample"] = subsample_meta
     heavy = set(args.subsample_models)
-    runs: list[tuple[str, str, list]] = []
-    for model in args.models:
-        if subsample_meta is None:
-            runs.append((model, model, samples))
-            continue
-        # cheap models are scored twice: once on the full period (the headline number)
-        # and once on the subset (the only fair basis for comparing against 14B)
-        if model not in heavy:
-            runs.append((model, model, samples))
-        runs.append((f"{model}@subsample", model, subset))
+    # The frozen arm is the headline configuration. Extra arms may be scored *in addition*
+    # — the 0.6B-vs-14B question is about semantic reasoning, and the frozen arm turned out
+    # to be the numbers-only one, which would have answered a different question. Extra
+    # arms are reported separately and never replace the frozen one.
+    arms = [frozen["gate_arm"]] + [a for a in args.extra_arms if a != frozen["gate_arm"]]
+    comparison["arms_scored"] = arms
+    runs: list[tuple[str, str, str, list]] = []
+    for arm in arms:
+        for model in args.models:
+            suffix = "" if arm == frozen["gate_arm"] else f"|{arm}"
+            if subsample_meta is None:
+                runs.append((f"{model}{suffix}", model, arm, samples))
+                continue
+            # cheap models are scored twice: once on the full period (the headline number)
+            # and once on the subset (the only fair basis for comparing against 14B)
+            if model not in heavy:
+                runs.append((f"{model}{suffix}", model, arm, samples))
+            runs.append((f"{model}{suffix}@subsample", model, arm, subset))
 
-    for key, model, scored_samples in runs:
+    for key, model, arm, scored_samples in runs:
         unavailable = _model_status(model)
         if unavailable:
             comparison["models"][key] = unavailable
             print(f"{key}: {unavailable['reason']}")
             continue
         config = _pipeline_config(frozen, model)
-        result = run_arm(frozen["gate_arm"], scored_samples, config)
+        print(f"scoring {key} ({arm}, {len(scored_samples)} topics) ...")
+        result = run_arm(arm, scored_samples, config)
         details = OllamaClient(config.ollama).show(model).get("details", {})
         comparison["models"][key] = {
             "status": "measured",
             "model": model,
+            "arm": arm,
             "n_scored": len(scored_samples),
             "scope": "paired_subsample" if key.endswith("@subsample") else "full_test_period",
             "model_details": details,
@@ -303,6 +327,7 @@ def stage_test(args: argparse.Namespace) -> int:
             key: (
                 {
                     "model": data["model"],
+                    "arm": data["arm"],
                     "scope": data["scope"],
                     "n_scored": data["n_scored"],
                     "metrics": data["metrics"],
@@ -336,6 +361,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--subsample-seed", type=int, default=20250215)
     parser.add_argument("--subsample-models", nargs="*", default=[TARGET_MODEL])
+    parser.add_argument(
+        "--extra-arms",
+        nargs="*",
+        default=[],
+        help="additional gate arms to score alongside the frozen one (reported separately)",
+    )
     args = parser.parse_args(argv)
     return stage_dev(args) if args.stage == "dev" else stage_test(args)
 
