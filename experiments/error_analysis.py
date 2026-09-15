@@ -4,7 +4,7 @@ Sections 12 and 13 of the required report ask for *categories*, not counts. Coun
 from the metrics artifact; this script goes back to the stored per-topic verdicts and the
 corpus itself, so every claim in the report is traceable to a topic id.
 
-    PYTHONPATH=src python3 experiments/error_analysis.py --key qwen3:0.6b
+    PYTHONPATH=src python3 experiments/error_analysis.py --keys qwen3:0.6b
 """
 
 from __future__ import annotations
@@ -40,12 +40,15 @@ def _shape(sample) -> dict:
 
 def bucket(shape: dict, label: int) -> str:
     """One label per error, chosen by the observation-window shape only."""
-    if shape["n_days_above_2x"] <= 1:
-        return "one-day spike" if label == 0 else "quiet run-up (nothing visible yet)"
-    if shape["tail_ratio"] < 1.5 <= shape["peak_ratio"]:
-        return "spike that already decayed inside the window"
+    # Amplitude first: a series whose peak never reaches 2x the baseline has no spike to
+    # describe, so calling it a "one-day spike" because it spent <=1 day above 2x would be
+    # a contradiction — and would hide flat series inside the spike bucket.
     if shape["peak_ratio"] < 2.0:
         return "low-amplitude wobble around the baseline"
+    if shape["n_days_above_2x"] <= 1:
+        return "one-day spike" if label == 0 else "quiet run-up (nothing visible yet)"
+    if shape["tail_ratio"] < 1.5:
+        return "spike that already decayed inside the window"
     return "sustained elevation"
 
 

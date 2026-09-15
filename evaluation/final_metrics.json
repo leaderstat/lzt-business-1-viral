@@ -559,5 +559,46 @@
       "available": false,
       "note": "GPU benchmark unavailable in this environment"
     }
+  },
+  "bootstrap_ci_test": {
+    "n_resamples": 1000,
+    "unit": "topic",
+    "seed": 7,
+    "arms": {
+      "stats_only": {
+        "precision": {
+          "lo": 0.0869,
+          "hi": 0.196,
+          "median": 0.1357
+        },
+        "recall": {
+          "lo": 0.7778,
+          "hi": 1.0,
+          "median": 0.9167
+        },
+        "precision_at_k": {
+          "lo": 0.0,
+          "hi": 0.2,
+          "median": 0.0
+        }
+      },
+      "llm_series_only": {
+        "precision": {
+          "lo": 0.0741,
+          "hi": 0.3429,
+          "median": 0.1935
+        },
+        "recall": {
+          "lo": 0.1199,
+          "hi": 0.52,
+          "median": 0.3
+        },
+        "precision_at_k": {
+          "lo": 0.0,
+          "hi": 0.3,
+          "median": 0.1
+        }
+      }
+    }
   }
 }
