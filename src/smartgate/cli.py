@@ -12,6 +12,8 @@ from .dataset import generate_dataset, load_jsonl, save_jsonl
 from .llm_gate import LLMGate
 from .ollama_client import OllamaClient, OllamaError
 from .pipeline import run_pipeline, save_run, sweep_detectors
+from .realworld import PERIODS, build_period_dataset, entity_key, save_meta
+from .wikipedia import PageviewsClient
 
 
 def _detector_config(args: argparse.Namespace) -> DetectorConfig:
@@ -113,6 +115,42 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     return 0
 
 
+
+def cmd_realworld(args: argparse.Namespace) -> int:
+    """Build the causally split real-world corpus from Wikimedia pageviews (S2-01)."""
+    client = PageviewsClient()
+    out_dir = Path(args.out_dir)
+    seen: list[tuple[str, str]] = []
+    summary = {}
+    # Periods are built in calendar order so the later one can exclude entities already
+    # used by the earlier one: an entity in both splits would leak its behaviour across
+    # the train/test boundary.
+    for name in args.periods:
+        period = PERIODS[name]
+        samples, meta = build_period_dataset(
+            client,
+            period,
+            max_candidates=args.max_candidates,
+            seed=args.seed,
+            exclude=seen,
+        )
+        seen.extend(entity_key(s) for s in samples)
+        path = save_jsonl(samples, out_dir / f"real_world_dataset.{name}.jsonl")
+        save_meta(meta, out_dir / f"real_world_dataset.{name}.meta.json")
+        summary[name] = {
+            "path": str(path),
+            "n": len(samples),
+            "positive": sum(s.label for s in samples),
+            "dropped": meta.dropped,
+        }
+        print(
+            f"{name}: {len(samples)} samples, {sum(s.label for s in samples)} positive "
+            f"-> {path}"
+        )
+    print(json.dumps({"api": client.stats(), "periods": summary}, indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="smartgate", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -151,6 +189,13 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--out")
     add_common(run)
     run.set_defaults(func=cmd_run)
+
+    rw = sub.add_parser("realworld", help="build the real-world corpus (Wikimedia pageviews)")
+    rw.add_argument("--periods", nargs="+", default=["dev", "test"], choices=sorted(PERIODS))
+    rw.add_argument("--max-candidates", type=int, default=400)
+    rw.add_argument("--seed", type=int, default=20250201)
+    rw.add_argument("--out-dir", default="artifacts")
+    rw.set_defaults(func=cmd_realworld)
 
     sweep = sub.add_parser("sweep", help="compare statistical detectors (no LLM)")
     sweep.add_argument("--dataset")

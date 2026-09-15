@@ -7,3 +7,6 @@ build/
 dist/
 .venv/
 artifacts/tmp/
+artifacts/cache/
+logs/
+ci-logs/
