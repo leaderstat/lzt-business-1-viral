@@ -1,4 +1,4 @@
-"""Smart Gate — Sprint 01 baseline package.
+"""Smart Gate — evidence-aware trend detection package.
 
 Layers (see docs/architecture.md):
 
@@ -9,6 +9,6 @@ Layers (see docs/architecture.md):
 * ``pipeline``  — orchestration producing reproducible artifacts.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.3.0"
 
 __all__ = ["__version__"]

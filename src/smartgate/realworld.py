@@ -217,8 +217,14 @@ def label_for(observation: Sequence[float], label_window: Sequence[float]) -> tu
     }
 
 
-def _context(project: str, article: str, period: Period, observation: Sequence[float]) -> str:
-    """Semantic context for the gate, computed from the *warmup* window only.
+def _context(
+    project: str,
+    article: str,
+    period: Period,
+    observation: Sequence[float],
+    summary: dict | None = None,
+) -> str:
+    """External semantics plus causal signal metadata from the warmup window only.
 
     This is the strictest window we can use: the detectors suppress alarms during warmup,
     so statistics over ``series[:BASELINE_DAYS]`` are always older than any decision point.
@@ -230,8 +236,16 @@ def _context(project: str, article: str, period: Period, observation: Sequence[f
     title = article.replace("_", " ")
     warmup_end = period.observation_start + timedelta(days=BASELINE_DAYS - 1)
     volatility = (statistics.pstdev(head) / base) if base else 0.0
+    external = summary or {}
+    semantic = " ".join(
+        value.strip()
+        for value in (external.get("description", ""), external.get("extract", ""))
+        if value and value.strip()
+    )
+    prefix = f"Article meaning: {semantic[:1200]} " if semantic else ""
     return (
-        f"Wikipedia article '{title}' on {project}; the series is its daily count of human "
+        prefix
+        + f"Wikipedia article '{title}' on {project}; the series is its daily count of human "
         f"(non-crawler) pageviews. Baseline window {period.observation_start.isoformat()}"
         f"..{warmup_end.isoformat()}: median {base:.0f} views/day, "
         f"min {min(head):.0f}, max {max(head):.0f}, relative volatility {volatility:.2f}. "
@@ -278,6 +292,8 @@ def build_period_dataset(
             continue
 
         label, evidence = label_for(observation, label_window)
+        summary_loader = getattr(client, "article_summary", None)
+        summary = summary_loader(project, article) if summary_loader is not None else {}
         samples.append(
             Sample(
                 topic_id=f"{period.name}-{index:04d}",
@@ -289,7 +305,7 @@ def build_period_dataset(
                 series=[round(v, 3) for v in observation],
                 change_index=None,  # unknown on real data — nobody labelled the exact day
                 viral_index=_viral_index(full, base),
-                context=_context(project, article, period, observation),
+                context=_context(project, article, period, observation, summary),
                 meta={
                     "source": "wikimedia-pageviews",
                     "project": project,
@@ -300,6 +316,9 @@ def build_period_dataset(
                     "label_start": period.label_start.isoformat(),
                     "label_end": period.label_end.isoformat(),
                     "baseline_level": round(base, 3),
+                    "context_source": "wikipedia-page-summary" if summary else "title-only",
+                    "context_last_modified": summary.get("timestamp", ""),
+                    "context_available_at": "corpus-build-time",
                     "label_evidence": evidence,
                 },
             )

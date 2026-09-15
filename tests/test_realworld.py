@@ -37,6 +37,7 @@ class StubClient:
         self.universe = universe or ["Alpha", "Beta", "Gamma", "Delta"]
         self.top_calls: list[tuple[str, date]] = []
         self.series_calls: list[tuple[str, str, date, date]] = []
+        self.summary_calls: list[tuple[str, str]] = []
 
     def top_articles(self, project, day, limit=1000):
         self.top_calls.append((project, day))
@@ -47,6 +48,15 @@ class StubClient:
         days = (end - start).days + 1
         custom = self.series_for(project, article)
         return list(custom)[:days] if custom else [100.0] * days
+
+    def article_summary(self, project, article):
+        self.summary_calls.append((project, article))
+        return {
+            "title": article,
+            "description": "Independent article description",
+            "extract": "External encyclopedic background that is not derived from traffic.",
+            "timestamp": "2023-12-01T00:00:00Z",
+        }
 
     def stats(self):
         return {"http_requests": len(self.series_calls)}
@@ -111,6 +121,15 @@ def test_context_is_computed_from_the_warmup_window_only():
     for sample in samples:
         assert "999999" not in sample.context.replace(",", "")
         assert "median 100" in sample.context
+
+
+def test_context_contains_external_evidence_with_provenance():
+    client, samples, _ = _build()
+    assert len(client.summary_calls) == len(samples)
+    for sample in samples:
+        assert "External encyclopedic background" in sample.context
+        assert sample.meta["context_source"] == "wikipedia-page-summary"
+        assert sample.meta["context_available_at"] == "corpus-build-time"
 
 
 def test_label_uses_only_the_label_window_and_the_warmup_baseline():

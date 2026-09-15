@@ -48,6 +48,7 @@ if os.environ.get("SMARTGATE_TRACE") == "1":  # pragma: no cover - opt-in tracin
     log.setLevel(logging.DEBUG)
 
 API_ROOT = "https://wikimedia.org/api/rest_v1/metrics/pageviews"
+SUMMARY_ROOT = "https://api.wikimedia.org/core/v1/wikipedia"
 
 # The Wikimedia User-Agent policy requires a contact address; it is overridable so a
 # fork does not silently keep ours.
@@ -204,6 +205,23 @@ class PageviewsClient:
             for item in payload.get("items", [])
         }
         return [by_day.get(f"{d:%Y%m%d}", 0.0) for d in daterange(start, end)]
+
+    def article_summary(self, project: str, article: str) -> dict:
+        """Stable encyclopedic context, independent of the pageview signal.
+
+        The Wikimedia Core REST endpoint supplies the article description. Responses
+        use the same disk cache as pageviews, so a corpus rebuild streams one topic at a
+        time and does not retain API payloads in memory.
+        """
+        language = project.split(".", 1)[0]
+        quoted = urllib.parse.quote(article.replace("_", " "), safe="")
+        url = f"{SUMMARY_ROOT}/{language}/page/{quoted}/description"
+        try:
+            payload = self._get(url)
+        except WikipediaError as exc:
+            log.debug("no summary for %s/%s: %s", project, article, exc)
+            return {}
+        return {"description": payload.get("description", "")}
 
     def stats(self) -> dict:
         return {

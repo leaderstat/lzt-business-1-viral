@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "smartgate"
-version = "0.2.0"
-description = "Smart Gate — Sprint 01 baseline: change-point detection + Qwen3 via Ollama as an inference/runtime layer"
+version = "0.3.0"
+description = "Smart Gate — change-point detection + an evidence-aware Qwen3 semantic gate"
 readme = "Readme-ru.md"
 requires-python = ">=3.9"
 dependencies = []
