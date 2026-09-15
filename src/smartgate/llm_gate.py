@@ -195,6 +195,7 @@ class LLMGate:
         self.invalid_json = 0
         self.latencies: list[float] = []
         self.token_rates: list[float] = []
+        self.timings: list[dict] = []
 
     @property
     def model(self) -> str:
@@ -261,6 +262,7 @@ class LLMGate:
         self.latencies.append(result.latency_s)
         if result.tokens_per_second:
             self.token_rates.append(result.tokens_per_second)
+        self.timings.append(result.timings_s)
         if cache is not None:
             cache.parent.mkdir(parents=True, exist_ok=True)
             cache.write_text(

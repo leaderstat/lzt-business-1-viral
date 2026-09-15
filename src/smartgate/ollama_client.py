@@ -48,6 +48,18 @@ class ChatResult:
         return int(self.raw.get("eval_count") or 0)
 
     @property
+    def timings_s(self) -> dict:
+        """Server-side breakdown of one call, in seconds.
+
+        Wall-clock latency is load + prefill + decode, and only decode is what
+        ``tokens_per_second`` describes. Without the split, a run that is slow because the
+        weights had to be paged in looks exactly like a run that is slow because the model
+        is big — and PHASE 9 has to tell those two apart.
+        """
+        keys = ("load_duration", "prompt_eval_duration", "eval_duration", "total_duration")
+        return {k: round((self.raw.get(k) or 0) / 1e9, 3) for k in keys}
+
+    @property
     def tokens_per_second(self) -> float:
         duration_ns = self.raw.get("eval_duration") or 0
         if not duration_ns or not self.eval_count:

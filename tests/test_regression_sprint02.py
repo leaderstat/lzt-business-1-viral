@@ -288,3 +288,25 @@ def test_a_retried_request_is_counted_so_latency_can_be_read_honestly(fake_ollam
     with pytest.raises(OllamaError):
         client.chat([{"role": "user", "content": "hi"}])
     assert client.retry_count == 1
+
+
+def test_server_timings_split_latency_into_load_prompt_and_generation(fake_ollama):
+    """A slow call because the weights were paged in is not the same finding as a slow
+    call because the model is big, and wall-clock latency alone cannot tell them apart.
+    PHASE 9 reports the split, so the split has to survive refactoring."""
+    fake_ollama.set(
+        "chat",
+        {
+            **chat_response('{"is_emerging": true, "confidence": 0.9, "reason": "r"}'),
+            "load_duration": 1_500_000_000,
+            "prompt_eval_duration": 2_000_000_000,
+            "total_duration": 4_000_000_000,
+        },
+    )
+    result = fake_ollama.client().chat([{"role": "user", "content": "hi"}])
+    assert result.timings_s == {
+        "load_duration": 1.5,
+        "prompt_eval_duration": 2.0,
+        "eval_duration": 1.0,
+        "total_duration": 4.0,
+    }

@@ -79,6 +79,13 @@ def benchmark(model: str, work: list[tuple], num_predict: int | None = None) -> 
         "inference_mode": config.to_dict(),
         "model_details": client.show(model).get("details", {}),
         "latency": latency_summary(gate.latencies),
+        "server_timings_mean_s": {
+            key: round(sum(t[key] for t in gate.timings) / len(gate.timings), 3)
+            for key in ("load_duration", "prompt_eval_duration", "eval_duration",
+                        "total_duration")
+        }
+        if gate.timings
+        else {},
         "tokens_per_second": {
             "mean": stats["mean_tokens_per_second"],
             "samples": len(gate.token_rates),
