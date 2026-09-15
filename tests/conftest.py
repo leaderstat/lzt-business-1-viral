@@ -88,7 +88,8 @@ def fake_ollama():
             return _FakeOllamaHandler.requests
 
         def client(self, **kwargs) -> OllamaClient:
-            cfg = OllamaConfig(host=host, model="qwen3:0.6b", timeout=5.0, retries=0, **kwargs)
+            defaults = {"timeout": 5.0, "retries": 0}
+            cfg = OllamaConfig(host=host, model="qwen3:0.6b", **{**defaults, **kwargs})
             return OllamaClient(cfg)
 
     try:

@@ -26,6 +26,7 @@ from smartgate.experiments import (
     run_arm,
 )
 from smartgate.llm_gate import RESPONSE_SCHEMA, GateFeatures, LLMGate, build_prompt
+from smartgate.ollama_client import OllamaError
 from smartgate.pipeline import run_pipeline
 
 DETECTORS = ("threshold", "ewma", "cusum")
@@ -272,3 +273,18 @@ def test_precision_at_k_curve_covers_more_than_one_k(corpus):
     curve = precision_at_k_curve(result)
     assert len(curve) > 1 and "10" in curve
     assert json.dumps(curve)  # artifact-serialisable
+
+
+def test_a_retried_request_is_counted_so_latency_can_be_read_honestly(fake_ollama):
+    """``timeout`` is a socket timeout, not an answer deadline.
+
+    A slow model can exceed it and still succeed on the retry; the measured latency then
+    covers both attempts. PHASE 9 reports latency, so the retry must be visible next to it
+    rather than hidden inside the number.
+    """
+    client = fake_ollama.client(retries=1)
+    assert client.retry_count == 0
+    fake_ollama.set("chat", 500)
+    with pytest.raises(OllamaError):
+        client.chat([{"role": "user", "content": "hi"}])
+    assert client.retry_count == 1

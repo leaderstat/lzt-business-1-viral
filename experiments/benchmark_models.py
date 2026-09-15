@@ -90,6 +90,11 @@ def benchmark(model: str, work: list[tuple], num_predict: int | None = None) -> 
         "failure_rate": stats["failure_rate"],
         "json_validity": stats["json_validity"],
         "transport_errors": stats["transport_errors"],
+        # A retried call still returns a verdict, so it never shows up as a failure — but
+        # its latency is the sum of the timed-out attempt and the successful one. Reported
+        # explicitly so nobody reads such a number as single-call latency.
+        "silent_retries": client.retry_count,
+        "socket_timeout_s": config.timeout,
         "invalid_json": stats["invalid_json"],
         "wall_clock_s": round(wall, 2),
         "prompts_per_minute": round(60 * len(work) / wall, 2) if wall else 0.0,

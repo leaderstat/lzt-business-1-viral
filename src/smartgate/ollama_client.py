@@ -60,6 +60,11 @@ class OllamaClient:
 
     def __init__(self, config: OllamaConfig | None = None) -> None:
         self.config = config or OllamaConfig()
+        # ``timeout`` is a socket timeout, not a deadline for the whole answer, so a slow
+        # model can time out and then succeed on the retry. Without this counter the
+        # retry would be invisible and its cost would be silently charged to the
+        # *latency* of a single call — which is exactly the number PHASE 9 reports.
+        self.retry_count = 0
 
     # ------------------------------------------------------------------ transport
     def _request(self, path: str, payload: dict | None = None, method: str = "POST") -> dict:
@@ -87,6 +92,8 @@ class OllamaClient:
             except (urllib.error.URLError, TimeoutError, OSError) as exc:
                 last_error = OllamaUnavailable(f"{method} {url} -> {exc}")
             if attempt < self.config.retries:
+                self.retry_count += 1
+                log.warning("retrying %s after %s", url, last_error)
                 time.sleep(0.5 * (attempt + 1))
         assert last_error is not None
         raise last_error
