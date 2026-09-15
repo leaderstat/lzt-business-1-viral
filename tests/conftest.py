@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
 
 import pytest
 
@@ -48,6 +49,21 @@ class _FakeOllamaHandler(BaseHTTPRequestHandler):
             self._send(canned, {"error": "boom"})
             return
         self._send(200, canned)
+
+
+# The brief asks for the suite to be split into unit / integration / real-world. Marking by
+# file keeps the split honest: a test cannot drift out of its category by being edited, and
+# nobody has to remember to decorate a new test.
+_REAL_WORLD_FILES = {"test_realworld.py", "test_wikipedia.py", "test_sprint02_driver.py",
+                     "test_regression_sprint02.py"}
+
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if item.get_closest_marker("integration"):
+            continue
+        name = Path(str(item.fspath)).name
+        item.add_marker("real_world" if name in _REAL_WORLD_FILES else "unit")
 
 
 @pytest.fixture

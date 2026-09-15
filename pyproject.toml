@@ -23,7 +23,9 @@ where = ["src"]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
 markers = [
+  "unit: fast, hermetic; no network, no corpus on disk",
   "integration: requires a running Ollama server (deselect with -m 'not integration')",
+  "real_world: exercises the real-world corpus protocol (builder, driver, causality)",
 ]
 timeout = 120
 
