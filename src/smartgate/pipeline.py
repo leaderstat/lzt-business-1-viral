@@ -84,6 +84,7 @@ def run_pipeline(
     gate: LLMGate | None = None,
     n_samples: int = 200,
     seed: int = 20240501,
+    dataset_path: str | None = None,
 ) -> RunResult:
     config = config or PipelineConfig()
     samples = list(samples) if samples is not None else generate_dataset(n_samples, seed=seed)
@@ -159,7 +160,10 @@ def run_pipeline(
         "use_llm_gate": config.use_llm_gate,
         "top_k": config.top_k,
         "decision_horizon": config.decision_horizon,
-        "seed": seed,
+        # ``seed`` only reproduces the corpus when it was generated on the fly; when a
+        # file is passed, the file is the source of truth, so record which one.
+        "seed": None if dataset_path else seed,
+        "dataset_path": dataset_path,
         "n_samples": len(samples),
         "detector_params": asdict(config.detectors),
         "ollama": config.ollama.to_dict() if config.use_llm_gate else None,

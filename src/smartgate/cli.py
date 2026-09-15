@@ -82,7 +82,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     gate = None
     if config.use_llm_gate:
         gate = LLMGate(config=config.ollama, allow_fallback=not args.strict_llm)
-    result = run_pipeline(samples, config, gate=gate, seed=args.seed)
+    result = run_pipeline(samples, config, gate=gate, seed=args.seed, dataset_path=args.dataset)
     if args.out:
         print(f"run saved to {save_run(result, args.out)}")
     combined = result.report.to_dict()
