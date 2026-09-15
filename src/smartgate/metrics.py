@@ -12,8 +12,8 @@ Lead Time and False Positive Rate.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
-from typing import Sequence
 
 
 @dataclass

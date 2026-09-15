@@ -35,7 +35,9 @@ class OllamaConfig:
     benchmark compares architectures, not accidentally different decoding modes.
     """
 
-    host: str = field(default_factory=lambda: os.environ.get("OLLAMA_HOST", "http://localhost:11434"))
+    host: str = field(
+        default_factory=lambda: os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    )
     model: str = field(default_factory=lambda: os.environ.get("SMARTGATE_MODEL", SMOKE_MODEL))
     # Qwen3 exposes an explicit thinking / non-thinking switch in its chat template.
     # Sprint 01 fixes non-thinking mode so latency and outputs stay comparable.

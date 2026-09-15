@@ -11,9 +11,9 @@ from __future__ import annotations
 import json
 import platform
 import time
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
-from typing import Sequence
 
 from . import __version__
 from .config import DetectorConfig, OllamaConfig, PipelineConfig
@@ -102,7 +102,9 @@ def run_pipeline(
         if detection.fired and config.use_llm_gate and gate is not None:
             # The gate must not see the future either: it only gets the evidence that
             # exists at the decision point.
-            visible = sample.series[: min(detection.index + config.decision_horizon + 1, len(sample.series))]
+            visible = sample.series[
+                : min(detection.index + config.decision_horizon + 1, len(sample.series))
+            ]
             verdict = gate.judge(replace(sample, series=visible), detection.index, detection.score)
             gate_passed = verdict.is_emerging
             confidence = verdict.confidence
@@ -149,10 +151,7 @@ def run_pipeline(
         y_true,
         [int(r.detector_fired) for r in results],
         [r.detector_score for r in results],
-        [
-            lead_time(r.detector_index if r.detector_fired else None, r.viral_index)
-            for r in results
-        ],
+        [lead_time(r.detector_index if r.detector_fired else None, r.viral_index) for r in results],
         k=config.top_k,
     )
     cfg_dump = {

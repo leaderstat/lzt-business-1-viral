@@ -15,8 +15,8 @@ because it needs the whole series up-front.
 from __future__ import annotations
 
 import math
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from typing import Iterable, Sequence
 
 from .config import DetectorConfig
 
@@ -42,6 +42,21 @@ class BaseDetector:
 
     def threshold(self) -> float:  # pragma: no cover
         raise NotImplementedError
+
+    def _baseline(self, series: Sequence[float]) -> tuple[int, float, float]:
+        """Baseline level/spread estimated on the warmup window.
+
+        The window length must not depend on the *total* length of the series: otherwise
+        the statistic at step ``i`` would silently change as more data arrives, which
+        makes the detector non-causal (regression covered by
+        ``tests/test_detectors.py::test_trace_is_causal``). The ``//3`` branch only
+        applies to series that are shorter than the configured warmup at all.
+        """
+        cfg = self.config
+        warmup = cfg.warmup if len(series) > cfg.warmup else max(2, len(series) // 3)
+        baseline = list(series[:warmup])
+        mu0 = _mean(baseline)
+        return warmup, mu0, max(_std(baseline, mu0), cfg.min_sigma)
 
     def run(self, series: Sequence[float], decision_horizon: int | None = None) -> Detection:
         """Run online and score the alarm at the *decision point*.
@@ -92,10 +107,7 @@ class EWMADetector(BaseDetector):
 
     def score_series(self, series: Sequence[float]) -> list[float]:
         cfg = self.config
-        warmup = min(cfg.warmup, max(2, len(series) // 3))
-        baseline = list(series[:warmup])
-        mu0 = _mean(baseline)
-        sigma = max(_std(baseline, mu0), cfg.min_sigma)
+        warmup, mu0, sigma = self._baseline(series)
         alpha = cfg.ewma_alpha
         z = mu0
         out: list[float] = []
@@ -125,10 +137,7 @@ class CUSUMDetector(BaseDetector):
 
     def score_series(self, series: Sequence[float]) -> list[float]:
         cfg = self.config
-        warmup = min(cfg.warmup, max(2, len(series) // 3))
-        baseline = list(series[:warmup])
-        mu0 = _mean(baseline)
-        sigma = max(_std(baseline, mu0), cfg.min_sigma)
+        warmup, mu0, sigma = self._baseline(series)
         s = 0.0
         out: list[float] = []
         for i, x in enumerate(series):
@@ -151,10 +160,7 @@ class ThresholdDetector(BaseDetector):
 
     def score_series(self, series: Sequence[float]) -> list[float]:
         cfg = self.config
-        warmup = min(cfg.warmup, max(2, len(series) // 3))
-        baseline = list(series[:warmup])
-        mu0 = _mean(baseline)
-        sigma = max(_std(baseline, mu0), cfg.min_sigma)
+        warmup, mu0, sigma = self._baseline(series)
         limit = mu0 + cfg.ewma_k * sigma
         out: list[float] = []
         for i, x in enumerate(series):

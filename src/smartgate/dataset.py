@@ -18,9 +18,9 @@ from __future__ import annotations
 import json
 import math
 import random
+from collections.abc import Iterator, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Iterator, Sequence
 
 VIRAL_MULTIPLIER = 3.0  # a topic is "obviously viral" at 3x its own baseline level
 
@@ -31,10 +31,26 @@ NEGATIVE_KINDS = ("stationary", "one_off_spike", "seasonal_wave", "growth_then_d
 POSITIVE_KINDS = ("linear_growth", "exponential_growth", "step_shift")
 
 _TOPIC_WORDS = (
-    "ai agents", "quantum ads", "retro sneakers", "cold brew matcha", "vertical farming",
-    "ambient computing", "local llm", "solid state battery", "micro drama", "sleep tech",
-    "silent walking", "edge inference", "rewilding", "modular housing", "creatine gummies",
-    "voice cloning", "desk treadmill", "carbon concrete", "slow travel", "fermented soda",
+    "ai agents",
+    "quantum ads",
+    "retro sneakers",
+    "cold brew matcha",
+    "vertical farming",
+    "ambient computing",
+    "local llm",
+    "solid state battery",
+    "micro drama",
+    "sleep tech",
+    "silent walking",
+    "edge inference",
+    "rewilding",
+    "modular housing",
+    "creatine gummies",
+    "voice cloning",
+    "desk treadmill",
+    "carbon concrete",
+    "slow travel",
+    "fermented soda",
 )
 
 
@@ -56,7 +72,7 @@ class Sample:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, payload: dict) -> "Sample":
+    def from_dict(cls, payload: dict) -> Sample:
         return cls(**payload)
 
 
