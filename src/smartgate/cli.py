@@ -14,10 +14,8 @@ from .experiments import (
     gate_ablation,
     host_report,
     make_gate,
-    run_arm,
 )
-from .llm_gate import GateFeatures
-from .llm_gate import LLMGate
+from .llm_gate import GateFeatures, LLMGate
 from .ollama_client import OllamaClient, OllamaError
 from .pipeline import run_pipeline, save_run, sweep_detectors
 from .realworld import PERIODS, build_period_dataset, entity_key, save_meta

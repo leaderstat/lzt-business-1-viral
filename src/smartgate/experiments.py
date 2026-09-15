@@ -78,7 +78,12 @@ def make_gate(
     heuristic would contaminate the arm being measured with the arm it is compared to.
     """
     sub = None if cache_dir is None else Path(cache_dir) / config.ollama.model.replace(":", "-")
-    return LLMGate(config=config.ollama, allow_fallback=not strict, features=features, cache_dir=sub)
+    return LLMGate(
+        config=config.ollama,
+        allow_fallback=not strict,
+        features=features,
+        cache_dir=sub,
+    )
 
 
 # --------------------------------------------------------------------------- ablation
@@ -138,7 +143,9 @@ def gate_ablation(
 
 
 # --------------------------------------------------------------------------- statistics
-def _arrays(result: RunResult, stats_only: bool = False) -> tuple[list[int], list[int], list[float]]:
+def _arrays(
+    result: RunResult, stats_only: bool = False
+) -> tuple[list[int], list[int], list[float]]:
     y_true = [r.label for r in result.results]
     if stats_only:
         return y_true, [int(r.detector_fired) for r in result.results], [
