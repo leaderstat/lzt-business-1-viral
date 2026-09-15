@@ -11,10 +11,12 @@ structured-output ``format`` schema (https://docs.ollama.com/api/introduction).
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 from .config import OllamaConfig
 from .dataset import Sample
@@ -38,6 +40,35 @@ RESPONSE_SCHEMA = {
 }
 
 
+@dataclass(frozen=True)
+class GateFeatures:
+    """Which evidence the gate is allowed to see.
+
+    Sprint 02 ablation (brief PHASE: feature ablation): the gate's win in Sprint 01 was
+    reported as a single number, so it was impossible to tell whether Qwen was reading the
+    numeric series, the semantic context, or just the alarm strength. Each field here can
+    be switched off independently, and the same prompt builder serves every variant — a
+    per-variant prompt would make the comparison meaningless.
+    """
+
+    use_series: bool = True
+    use_context: bool = True
+    use_alarm: bool = True
+
+    @property
+    def name(self) -> str:
+        on = [n for n, v in (("series", self.use_series), ("context", self.use_context),
+                             ("alarm", self.use_alarm)) if v]
+        return "+".join(on) if on else "none"
+
+    def to_dict(self) -> dict:
+        return {
+            "use_series": self.use_series,
+            "use_context": self.use_context,
+            "use_alarm": self.use_alarm,
+        }
+
+
 @dataclass
 class GateVerdict:
     is_emerging: bool
@@ -48,16 +79,32 @@ class GateVerdict:
     tokens_per_second: float = 0.0
 
 
-def build_prompt(sample: Sample, alarm_index: int | None, alarm_score: float) -> str:
-    series = ", ".join(f"{v:g}" for v in sample.series)
-    return (
-        f"Topic: {sample.topic}\n"
-        f"Context: {sample.context}\n"
-        f"Statistical alarm at day: {alarm_index}\n"
-        f"Alarm strength (1.0 = control limit): {alarm_score:.2f}\n"
-        f"Daily mentions (day 0 first): {series}\n\n"
+def build_prompt(
+    sample: Sample,
+    alarm_index: int | None,
+    alarm_score: float,
+    features: GateFeatures | None = None,
+) -> str:
+    """One prompt template for every variant; disabled features drop their line entirely.
+
+    Disabled evidence is *omitted* rather than blanked out: a line reading
+    ``Context: (hidden)`` is itself information, and it changes the task the model sees.
+    """
+    features = features or GateFeatures()
+    lines = [f"Topic: {sample.topic}"]
+    if features.use_context and sample.context:
+        lines.append(f"Context: {sample.context}")
+    if features.use_alarm:
+        lines.append(f"Statistical alarm at day: {alarm_index}")
+        lines.append(f"Alarm strength (1.0 = control limit): {alarm_score:.2f}")
+    if features.use_series:
+        series = ", ".join(f"{v:g}" for v in sample.series)
+        lines.append(f"Daily mentions (day 0 first): {series}")
+    lines.append("")
+    lines.append(
         'Reply with JSON: {"is_emerging": bool, "confidence": 0..1, "reason": "<=200 chars"}'
     )
+    return "\n".join(lines)
 
 
 def parse_verdict(text: str) -> dict:
@@ -113,6 +160,16 @@ def heuristic_verdict(sample: Sample, alarm_index: int | None) -> GateVerdict:
     )
 
 
+def _percentile(values: Sequence[float], pct: float) -> float:
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    rank = (pct / 100.0) * (len(ordered) - 1)
+    lo = int(rank)
+    hi = min(lo + 1, len(ordered) - 1)
+    return ordered[lo] + (ordered[hi] - ordered[lo]) * (rank - lo)
+
+
 class LLMGate:
     """Qwen3-backed gate with an explicit, logged fallback path."""
 
@@ -121,11 +178,21 @@ class LLMGate:
         client: OllamaClient | None = None,
         config: OllamaConfig | None = None,
         allow_fallback: bool = True,
+        features: GateFeatures | None = None,
+        cache_dir: str | Path | None = None,
     ) -> None:
         self.client = client or OllamaClient(config)
         self.allow_fallback = allow_fallback
+        self.features = features or GateFeatures()
+        # Verdicts are deterministic (temperature 0, fixed seed), so caching them by the
+        # exact request is not an approximation — it is memoisation. It is what makes a
+        # five-variant ablation on a CPU-only box affordable (backlog S2-14).
+        self.cache_dir = Path(cache_dir) if cache_dir else None
         self.fallback_count = 0
         self.llm_count = 0
+        self.cache_hits = 0
+        self.transport_errors = 0
+        self.invalid_json = 0
         self.latencies: list[float] = []
         self.token_rates: list[float] = []
 
@@ -133,8 +200,40 @@ class LLMGate:
     def model(self) -> str:
         return self.client.config.model
 
+    def _cache_path(self, prompt: str) -> Path | None:
+        if self.cache_dir is None:
+            return None
+        key = json.dumps(
+            {
+                "model": self.client.config.model,
+                "think": self.client.config.think,
+                "options": self.client.config.options(),
+                "system": SYSTEM_PROMPT,
+                "prompt": prompt,
+            },
+            sort_keys=True,
+        )
+        digest = hashlib.sha256(key.encode("utf-8")).hexdigest()[:32]
+        return self.cache_dir / f"{digest}.json"
+
     def judge(self, sample: Sample, alarm_index: int | None, alarm_score: float) -> GateVerdict:
-        prompt = build_prompt(sample, alarm_index, alarm_score)
+        prompt = build_prompt(sample, alarm_index, alarm_score, self.features)
+        cache = self._cache_path(prompt)
+        if cache is not None and cache.exists():
+            payload = json.loads(cache.read_text(encoding="utf-8"))
+            self.cache_hits += 1
+            self.llm_count += 1
+            self.latencies.append(payload.get("latency_s", 0.0))
+            if payload.get("tokens_per_second"):
+                self.token_rates.append(payload["tokens_per_second"])
+            return GateVerdict(
+                is_emerging=payload["is_emerging"],
+                confidence=payload["confidence"],
+                reason=payload["reason"],
+                source="llm",
+                latency_s=payload.get("latency_s", 0.0),
+                tokens_per_second=payload.get("tokens_per_second", 0.0),
+            )
         try:
             result: ChatResult = self.client.chat(
                 [
@@ -145,6 +244,13 @@ class LLMGate:
             )
             parsed = parse_verdict(result.content)
         except (OllamaError, ValueError) as exc:
+            # Split the two failure modes: PHASE 9 asks for "failure rate" and
+            # "JSON validity" separately, and they have different owners — one is the
+            # runtime, the other is the model.
+            if isinstance(exc, OllamaError):
+                self.transport_errors += 1
+            else:
+                self.invalid_json += 1
             if not self.allow_fallback:
                 raise
             self.fallback_count += 1
@@ -155,6 +261,19 @@ class LLMGate:
         self.latencies.append(result.latency_s)
         if result.tokens_per_second:
             self.token_rates.append(result.tokens_per_second)
+        if cache is not None:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(
+                json.dumps(
+                    {
+                        **parsed,
+                        "latency_s": result.latency_s,
+                        "tokens_per_second": result.tokens_per_second,
+                        "eval_count": result.eval_count,
+                    }
+                ),
+                encoding="utf-8",
+            )
         return GateVerdict(
             is_emerging=parsed["is_emerging"],
             confidence=parsed["confidence"],
@@ -168,10 +287,18 @@ class LLMGate:
         def _avg(values: Sequence[float]) -> float:
             return sum(values) / len(values) if values else 0.0
 
+        attempts = self.llm_count + self.fallback_count
         return {
             "model": self.model,
+            "features": self.features.to_dict(),
             "llm_calls": self.llm_count,
+            "cache_hits": self.cache_hits,
             "fallback_calls": self.fallback_count,
+            "transport_errors": self.transport_errors,
+            "invalid_json": self.invalid_json,
+            "failure_rate": round(self.transport_errors / attempts, 4) if attempts else 0.0,
+            "json_validity": round(1 - self.invalid_json / attempts, 4) if attempts else 1.0,
             "mean_latency_s": round(_avg(self.latencies), 3),
+            "p95_latency_s": round(_percentile(self.latencies, 95), 3),
             "mean_tokens_per_second": round(_avg(self.token_rates), 2),
         }
