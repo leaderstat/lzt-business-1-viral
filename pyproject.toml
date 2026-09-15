@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smartgate"
+version = "0.1.0"
+description = "Smart Gate — Sprint 01 baseline: change-point detection + Qwen3 via Ollama as an inference/runtime layer"
+readme = "Readme-ru.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-timeout>=2.1", "ruff>=0.5"]
+
+[project.scripts]
+smartgate = "smartgate.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+  "integration: requires a running Ollama server (deselect with -m 'not integration')",
+]
+timeout = 120
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
