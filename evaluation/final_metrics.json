@@ -1,0 +1,604 @@
+{
+  "sprint": "SPRINT-02",
+  "frozen_config": {
+    "frozen_on": "development period only",
+    "precision_floor": 0.5,
+    "detector": "threshold",
+    "detector_params": {
+      "ewma_alpha": 0.3,
+      "ewma_k": 3.0,
+      "cusum_k": 0.5,
+      "cusum_h": 5.0,
+      "warmup": 14,
+      "min_sigma": 1e-06
+    },
+    "decision_horizon": 3,
+    "gate_arm": "llm_series_only",
+    "arm_selection": {
+      "rule": "highest PR-AUC among LLM arms that pass at least one alarm",
+      "candidates": {
+        "llm_series_only": 0.06198025009094573
+      },
+      "degenerate_arms": [
+        "llm_context_only",
+        "llm_full"
+      ]
+    },
+    "top_k": 20,
+    "operating_point": {
+      "k": 20,
+      "reason": "no K clears the precision floor",
+      "precision_at_k": 0.1,
+      "recall_at_k": 0.1176
+    },
+    "gate_model_used_for_selection": "qwen3:0.6b",
+    "dev_dataset": "/tmp/gh-issue-solver-1789484631516/artifacts/real_world_dataset.dev.jsonl"
+  },
+  "test_period": {
+    "dataset_path": "/tmp/gh-issue-solver-1789484631516/artifacts/real_world_dataset.test.jsonl",
+    "n_samples": 305,
+    "n_positive": 23
+  },
+  "paired_subsample": {
+    "size": 40,
+    "seed": 20250215,
+    "of": 305,
+    "n_positive": 5,
+    "topic_ids": [
+      "test-0002",
+      "test-0013",
+      "test-0014",
+      "test-0017",
+      "test-0035",
+      "test-0055",
+      "test-0074",
+      "test-0076",
+      "test-0083",
+      "test-0087",
+      "test-0099",
+      "test-0102",
+      "test-0109",
+      "test-0119",
+      "test-0123",
+      "test-0133",
+      "test-0134",
+      "test-0146",
+      "test-0176",
+      "test-0191",
+      "test-0200",
+      "test-0206",
+      "test-0223",
+      "test-0227",
+      "test-0242",
+      "test-0248",
+      "test-0249",
+      "test-0258",
+      "test-0270",
+      "test-0275",
+      "test-0277",
+      "test-0279",
+      "test-0280",
+      "test-0285",
+      "test-0295",
+      "test-0315",
+      "test-0344",
+      "test-0349",
+      "test-0352",
+      "test-0366"
+    ],
+    "reason": "Qwen3-14B throughput on this host; drawn before any model was run"
+  },
+  "stats_only": {
+    "tp": 21,
+    "fp": 131,
+    "tn": 151,
+    "fn": 2,
+    "precision": 0.13815789473684212,
+    "recall": 0.9130434782608695,
+    "f1": 0.24,
+    "false_positive_rate": 0.4645390070921986,
+    "roc_auc": 0.7266419981498612,
+    "pr_auc": 0.13240373020079435,
+    "precision_at_k": 0.0,
+    "recall_at_k": 0.0,
+    "k": 20,
+    "mean_lead_time": 11.465116279069768,
+    "median_lead_time": 3.0,
+    "n_detected_positives": 43
+  },
+  "models": {
+    "qwen3:0.6b": {
+      "model": "qwen3:0.6b",
+      "arm": "llm_series_only",
+      "scope": "full_test_period",
+      "n_scored": 305,
+      "metrics": {
+        "tp": 7,
+        "fp": 28,
+        "tn": 254,
+        "fn": 16,
+        "precision": 0.2,
+        "recall": 0.30434782608695654,
+        "f1": 0.24137931034482762,
+        "false_positive_rate": 0.09929078014184398,
+        "roc_auc": 0.6103916127042861,
+        "pr_auc": 0.12824348618603693,
+        "precision_at_k": 0.1,
+        "recall_at_k": 0.08695652173913043,
+        "k": 20,
+        "mean_lead_time": 16.22222222222222,
+        "median_lead_time": 8.0,
+        "n_detected_positives": 9
+      },
+      "gate_stats": {
+        "model": "qwen3:0.6b",
+        "features": {
+          "use_series": true,
+          "use_context": false,
+          "use_alarm": true
+        },
+        "llm_calls": 152,
+        "cache_hits": 0,
+        "fallback_calls": 0,
+        "transport_errors": 0,
+        "invalid_json": 0,
+        "failure_rate": 0.0,
+        "json_validity": 1.0,
+        "mean_latency_s": 5.188,
+        "p95_latency_s": 8.428,
+        "mean_tokens_per_second": 19.78
+      },
+      "precision_at_k_curve": {
+        "5": {
+          "precision_at_k": 0.0,
+          "recall_at_k": 0.0
+        },
+        "10": {
+          "precision_at_k": 0.1,
+          "recall_at_k": 0.0435
+        },
+        "15": {
+          "precision_at_k": 0.0667,
+          "recall_at_k": 0.0435
+        },
+        "20": {
+          "precision_at_k": 0.1,
+          "recall_at_k": 0.087
+        },
+        "25": {
+          "precision_at_k": 0.12,
+          "recall_at_k": 0.1304
+        },
+        "30": {
+          "precision_at_k": 0.1667,
+          "recall_at_k": 0.2174
+        },
+        "40": {
+          "precision_at_k": 0.15,
+          "recall_at_k": 0.2609
+        },
+        "50": {
+          "precision_at_k": 0.18,
+          "recall_at_k": 0.3913
+        }
+      }
+    },
+    "qwen3:0.6b@subsample": {
+      "model": "qwen3:0.6b",
+      "arm": "llm_series_only",
+      "scope": "paired_subsample",
+      "n_scored": 40,
+      "metrics": {
+        "tp": 3,
+        "fp": 4,
+        "tn": 31,
+        "fn": 2,
+        "precision": 0.42857142857142855,
+        "recall": 0.6,
+        "f1": 0.5,
+        "false_positive_rate": 0.11428571428571428,
+        "roc_auc": 0.7028571428571428,
+        "pr_auc": 0.32298245614035087,
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.8,
+        "k": 20,
+        "mean_lead_time": 27.5,
+        "median_lead_time": 27.5,
+        "n_detected_positives": 2
+      },
+      "gate_stats": {
+        "model": "qwen3:0.6b",
+        "features": {
+          "use_series": true,
+          "use_context": false,
+          "use_alarm": true
+        },
+        "llm_calls": 20,
+        "cache_hits": 20,
+        "fallback_calls": 0,
+        "transport_errors": 0,
+        "invalid_json": 0,
+        "failure_rate": 0.0,
+        "json_validity": 1.0,
+        "mean_latency_s": 5.144,
+        "p95_latency_s": 8.174,
+        "mean_tokens_per_second": 20.26
+      },
+      "precision_at_k_curve": {
+        "5": {
+          "precision_at_k": 0.2,
+          "recall_at_k": 0.2
+        },
+        "10": {
+          "precision_at_k": 0.4,
+          "recall_at_k": 0.8
+        },
+        "15": {
+          "precision_at_k": 0.2667,
+          "recall_at_k": 0.8
+        },
+        "20": {
+          "precision_at_k": 0.2,
+          "recall_at_k": 0.8
+        },
+        "25": {
+          "precision_at_k": 0.16,
+          "recall_at_k": 0.8
+        },
+        "30": {
+          "precision_at_k": 0.1333,
+          "recall_at_k": 0.8
+        },
+        "40": {
+          "precision_at_k": 0.125,
+          "recall_at_k": 1.0
+        }
+      }
+    },
+    "qwen3:14b@subsample": {
+      "model": "qwen3:14b",
+      "arm": "llm_series_only",
+      "scope": "paired_subsample",
+      "n_scored": 40,
+      "metrics": {
+        "tp": 3,
+        "fp": 5,
+        "tn": 30,
+        "fn": 2,
+        "precision": 0.375,
+        "recall": 0.6,
+        "f1": 0.4615384615384615,
+        "false_positive_rate": 0.14285714285714285,
+        "roc_auc": 0.7314285714285714,
+        "pr_auc": 0.29458333333333336,
+        "precision_at_k": 0.2,
+        "recall_at_k": 0.8,
+        "k": 20,
+        "mean_lead_time": 4.666666666666667,
+        "median_lead_time": 1.0,
+        "n_detected_positives": 3
+      },
+      "gate_stats": {
+        "model": "qwen3:14b",
+        "features": {
+          "use_series": true,
+          "use_context": false,
+          "use_alarm": true
+        },
+        "llm_calls": 20,
+        "cache_hits": 0,
+        "fallback_calls": 0,
+        "transport_errors": 0,
+        "invalid_json": 0,
+        "failure_rate": 0.0,
+        "json_validity": 1.0,
+        "mean_latency_s": 72.186,
+        "p95_latency_s": 97.845,
+        "mean_tokens_per_second": 1.61
+      },
+      "precision_at_k_curve": {
+        "5": {
+          "precision_at_k": 0.2,
+          "recall_at_k": 0.2
+        },
+        "10": {
+          "precision_at_k": 0.4,
+          "recall_at_k": 0.8
+        },
+        "15": {
+          "precision_at_k": 0.2667,
+          "recall_at_k": 0.8
+        },
+        "20": {
+          "precision_at_k": 0.2,
+          "recall_at_k": 0.8
+        },
+        "25": {
+          "precision_at_k": 0.16,
+          "recall_at_k": 0.8
+        },
+        "30": {
+          "precision_at_k": 0.1333,
+          "recall_at_k": 0.8
+        },
+        "40": {
+          "precision_at_k": 0.125,
+          "recall_at_k": 1.0
+        }
+      }
+    },
+    "qwen3:0.6b|llm_full": {
+      "model": "qwen3:0.6b",
+      "arm": "llm_full",
+      "scope": "full_test_period",
+      "n_scored": 305,
+      "metrics": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 282,
+        "fn": 23,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0,
+        "roc_auc": 0.32600986740672216,
+        "pr_auc": 0.06034774523591041,
+        "precision_at_k": 0.1,
+        "recall_at_k": 0.08695652173913043,
+        "k": 20,
+        "mean_lead_time": NaN,
+        "median_lead_time": NaN,
+        "n_detected_positives": 0
+      },
+      "gate_stats": {
+        "model": "qwen3:0.6b",
+        "features": {
+          "use_series": true,
+          "use_context": true,
+          "use_alarm": true
+        },
+        "llm_calls": 152,
+        "cache_hits": 0,
+        "fallback_calls": 0,
+        "transport_errors": 0,
+        "invalid_json": 0,
+        "failure_rate": 0.0,
+        "json_validity": 1.0,
+        "mean_latency_s": 7.089,
+        "p95_latency_s": 11.476,
+        "mean_tokens_per_second": 17.65
+      },
+      "precision_at_k_curve": {
+        "5": {
+          "precision_at_k": 0.0,
+          "recall_at_k": 0.0
+        },
+        "10": {
+          "precision_at_k": 0.1,
+          "recall_at_k": 0.0435
+        },
+        "15": {
+          "precision_at_k": 0.0667,
+          "recall_at_k": 0.0435
+        },
+        "20": {
+          "precision_at_k": 0.1,
+          "recall_at_k": 0.087
+        },
+        "25": {
+          "precision_at_k": 0.08,
+          "recall_at_k": 0.087
+        },
+        "30": {
+          "precision_at_k": 0.0667,
+          "recall_at_k": 0.087
+        },
+        "40": {
+          "precision_at_k": 0.05,
+          "recall_at_k": 0.087
+        },
+        "50": {
+          "precision_at_k": 0.04,
+          "recall_at_k": 0.087
+        }
+      }
+    },
+    "qwen3:0.6b|llm_full@subsample": {
+      "model": "qwen3:0.6b",
+      "arm": "llm_full",
+      "scope": "paired_subsample",
+      "n_scored": 40,
+      "metrics": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 35,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0,
+        "roc_auc": 0.12571428571428572,
+        "pr_auc": 0.08470297688446508,
+        "precision_at_k": 0.0,
+        "recall_at_k": 0.0,
+        "k": 20,
+        "mean_lead_time": NaN,
+        "median_lead_time": NaN,
+        "n_detected_positives": 0
+      },
+      "gate_stats": {
+        "model": "qwen3:0.6b",
+        "features": {
+          "use_series": true,
+          "use_context": true,
+          "use_alarm": true
+        },
+        "llm_calls": 20,
+        "cache_hits": 20,
+        "fallback_calls": 0,
+        "transport_errors": 0,
+        "invalid_json": 0,
+        "failure_rate": 0.0,
+        "json_validity": 1.0,
+        "mean_latency_s": 6.135,
+        "p95_latency_s": 8.123,
+        "mean_tokens_per_second": 18.95
+      },
+      "precision_at_k_curve": {
+        "5": {
+          "precision_at_k": 0.0,
+          "recall_at_k": 0.0
+        },
+        "10": {
+          "precision_at_k": 0.0,
+          "recall_at_k": 0.0
+        },
+        "15": {
+          "precision_at_k": 0.0,
+          "recall_at_k": 0.0
+        },
+        "20": {
+          "precision_at_k": 0.0,
+          "recall_at_k": 0.0
+        },
+        "25": {
+          "precision_at_k": 0.04,
+          "recall_at_k": 0.2
+        },
+        "30": {
+          "precision_at_k": 0.0667,
+          "recall_at_k": 0.4
+        },
+        "40": {
+          "precision_at_k": 0.125,
+          "recall_at_k": 1.0
+        }
+      }
+    },
+    "qwen3:14b|llm_full@subsample": {
+      "model": "qwen3:14b",
+      "arm": "llm_full",
+      "scope": "paired_subsample",
+      "n_scored": 40,
+      "metrics": {
+        "tp": 0,
+        "fp": 0,
+        "tn": 35,
+        "fn": 5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positive_rate": 0.0,
+        "roc_auc": 0.5257142857142857,
+        "pr_auc": 0.18028461959496442,
+        "precision_at_k": 0.1,
+        "recall_at_k": 0.4,
+        "k": 20,
+        "mean_lead_time": NaN,
+        "median_lead_time": NaN,
+        "n_detected_positives": 0
+      },
+      "gate_stats": {
+        "model": "qwen3:14b",
+        "features": {
+          "use_series": true,
+          "use_context": true,
+          "use_alarm": true
+        },
+        "llm_calls": 20,
+        "cache_hits": 0,
+        "fallback_calls": 0,
+        "transport_errors": 0,
+        "invalid_json": 0,
+        "failure_rate": 0.0,
+        "json_validity": 1.0,
+        "mean_latency_s": 97.236,
+        "p95_latency_s": 114.975,
+        "mean_tokens_per_second": 1.52
+      },
+      "precision_at_k_curve": {
+        "5": {
+          "precision_at_k": 0.2,
+          "recall_at_k": 0.2
+        },
+        "10": {
+          "precision_at_k": 0.2,
+          "recall_at_k": 0.4
+        },
+        "15": {
+          "precision_at_k": 0.1333,
+          "recall_at_k": 0.4
+        },
+        "20": {
+          "precision_at_k": 0.1,
+          "recall_at_k": 0.4
+        },
+        "25": {
+          "precision_at_k": 0.08,
+          "recall_at_k": 0.4
+        },
+        "30": {
+          "precision_at_k": 0.1667,
+          "recall_at_k": 1.0
+        },
+        "40": {
+          "precision_at_k": 0.125,
+          "recall_at_k": 1.0
+        }
+      }
+    }
+  },
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Linux-6.8.0-139-generic-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 6,
+    "total_memory_gb": 11.68,
+    "peak_rss_mb": 29.5,
+    "gpu": {
+      "available": false,
+      "note": "GPU benchmark unavailable in this environment"
+    }
+  },
+  "bootstrap_ci_test": {
+    "n_resamples": 1000,
+    "unit": "topic",
+    "seed": 7,
+    "arms": {
+      "stats_only": {
+        "precision": {
+          "lo": 0.0869,
+          "hi": 0.196,
+          "median": 0.1357
+        },
+        "recall": {
+          "lo": 0.7778,
+          "hi": 1.0,
+          "median": 0.9167
+        },
+        "precision_at_k": {
+          "lo": 0.0,
+          "hi": 0.2,
+          "median": 0.0
+        }
+      },
+      "llm_series_only": {
+        "precision": {
+          "lo": 0.0741,
+          "hi": 0.3429,
+          "median": 0.1935
+        },
+        "recall": {
+          "lo": 0.1199,
+          "hi": 0.52,
+          "median": 0.3
+        },
+        "precision_at_k": {
+          "lo": 0.0,
+          "hi": 0.3,
+          "median": 0.1
+        }
+      }
+    }
+  }
+}

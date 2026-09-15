@@ -24,9 +24,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
       - name: Lint
-        run: ruff check src tests
+        run: ruff check src tests experiments examples
       - name: Unit tests
-        run: pytest -m "not integration" --timeout=120
+        run: pytest -m unit --timeout=120
+      - name: Real-world protocol tests (corpus builder, causality, driver)
+        run: pytest -m real_world --timeout=120
       - name: Smoke the pipeline end to end (statistics only)
         run: |
           python -m smartgate dataset --n 50 --out artifacts/ci_dataset.jsonl

@@ -1,0 +1,54 @@
+{
+  "period": {
+    "name": "dev",
+    "selection": [
+      "2024-06-15",
+      "2024-06-28"
+    ],
+    "observation": [
+      "2024-06-29",
+      "2024-08-27"
+    ],
+    "label": [
+      "2024-08-28",
+      "2024-09-26"
+    ],
+    "length_days": 60,
+    "label_days": 30
+  },
+  "projects": [
+    "en.wikipedia",
+    "ru.wikipedia",
+    "de.wikipedia"
+  ],
+  "rank_band": [
+    200,
+    1000
+  ],
+  "n_candidates": 400,
+  "n_samples": 329,
+  "n_positive": 17,
+  "seed": 20250201,
+  "label_rule": {
+    "viral_multiplier": 3.0,
+    "sustain_multiplier": 2.0,
+    "sustain_days": 7,
+    "rule": "positive iff the strongest 7-day window of the label window has mean >= 3.0x baseline and median >= 2.0x baseline",
+    "baseline": "median of the first 14 observation days"
+  },
+  "eligibility": {
+    "min_baseline_views": 50.0,
+    "requires_full_coverage": true,
+    "computed_from": "observation window only"
+  },
+  "api_stats": {
+    "http_requests": 156,
+    "cache_hits": 403,
+    "cache_dir": "artifacts/cache/pageviews"
+  },
+  "dropped": {
+    "no_data": 39,
+    "short_series": 0,
+    "low_baseline": 32
+  }
+}

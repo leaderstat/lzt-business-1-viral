@@ -48,6 +48,18 @@ class ChatResult:
         return int(self.raw.get("eval_count") or 0)
 
     @property
+    def timings_s(self) -> dict:
+        """Server-side breakdown of one call, in seconds.
+
+        Wall-clock latency is load + prefill + decode, and only decode is what
+        ``tokens_per_second`` describes. Without the split, a run that is slow because the
+        weights had to be paged in looks exactly like a run that is slow because the model
+        is big — and PHASE 9 has to tell those two apart.
+        """
+        keys = ("load_duration", "prompt_eval_duration", "eval_duration", "total_duration")
+        return {k: round((self.raw.get(k) or 0) / 1e9, 3) for k in keys}
+
+    @property
     def tokens_per_second(self) -> float:
         duration_ns = self.raw.get("eval_duration") or 0
         if not duration_ns or not self.eval_count:
@@ -60,6 +72,11 @@ class OllamaClient:
 
     def __init__(self, config: OllamaConfig | None = None) -> None:
         self.config = config or OllamaConfig()
+        # ``timeout`` is a socket timeout, not a deadline for the whole answer, so a slow
+        # model can time out and then succeed on the retry. Without this counter the
+        # retry would be invisible and its cost would be silently charged to the
+        # *latency* of a single call — which is exactly the number PHASE 9 reports.
+        self.retry_count = 0
 
     # ------------------------------------------------------------------ transport
     def _request(self, path: str, payload: dict | None = None, method: str = "POST") -> dict:
@@ -87,6 +104,8 @@ class OllamaClient:
             except (urllib.error.URLError, TimeoutError, OSError) as exc:
                 last_error = OllamaUnavailable(f"{method} {url} -> {exc}")
             if attempt < self.config.retries:
+                self.retry_count += 1
+                log.warning("retrying %s after %s", url, last_error)
                 time.sleep(0.5 * (attempt + 1))
         assert last_error is not None
         raise last_error

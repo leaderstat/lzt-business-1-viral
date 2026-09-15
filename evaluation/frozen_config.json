@@ -1,0 +1,34 @@
+{
+  "frozen_on": "development period only",
+  "precision_floor": 0.5,
+  "detector": "threshold",
+  "detector_params": {
+    "ewma_alpha": 0.3,
+    "ewma_k": 3.0,
+    "cusum_k": 0.5,
+    "cusum_h": 5.0,
+    "warmup": 14,
+    "min_sigma": 1e-06
+  },
+  "decision_horizon": 3,
+  "gate_arm": "llm_series_only",
+  "arm_selection": {
+    "rule": "highest PR-AUC among LLM arms that pass at least one alarm",
+    "candidates": {
+      "llm_series_only": 0.06198025009094573
+    },
+    "degenerate_arms": [
+      "llm_context_only",
+      "llm_full"
+    ]
+  },
+  "top_k": 20,
+  "operating_point": {
+    "k": 20,
+    "reason": "no K clears the precision floor",
+    "precision_at_k": 0.1,
+    "recall_at_k": 0.1176
+  },
+  "gate_model_used_for_selection": "qwen3:0.6b",
+  "dev_dataset": "/tmp/gh-issue-solver-1789484631516/artifacts/real_world_dataset.dev.jsonl"
+}

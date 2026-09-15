@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "smartgate"
-version = "0.1.0"
+version = "0.2.0"
 description = "Smart Gate — Sprint 01 baseline: change-point detection + Qwen3 via Ollama as an inference/runtime layer"
 readme = "Readme-ru.md"
 requires-python = ">=3.9"
@@ -23,7 +23,9 @@ where = ["src"]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
 markers = [
+  "unit: fast, hermetic; no network, no corpus on disk",
   "integration: requires a running Ollama server (deselect with -m 'not integration')",
+  "real_world: exercises the real-world corpus protocol (builder, driver, causality)",
 ]
 timeout = 120
 

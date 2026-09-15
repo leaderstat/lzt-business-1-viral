@@ -1,0 +1,950 @@
+{
+  "dataset": "/tmp/gh-issue-solver-1789484631516/artifacts/real_world_dataset.test.jsonl",
+  "analyses": [
+    {
+      "key": "qwen3:0.6b",
+      "arm": "llm_series_only",
+      "scope": "full_test_period",
+      "n_scored": 305,
+      "false_positives": {
+        "n": 28,
+        "by_bucket": {
+          "sustained elevation": 8,
+          "low-amplitude wobble around the baseline": 8,
+          "one-day spike": 8,
+          "spike that already decayed inside the window": 4
+        },
+        "examples": [
+          {
+            "topic_id": "test-0020",
+            "topic": "Caroline Frier",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "Caroline Frier has been gaining traction in recent days, with a consistent daily mention count exceeding 400, indicating sustained growth. The statistical alarm suggests a trend is emerging, and the confidence level is moderately high.",
+            "lead_time": 0.0,
+            "baseline": 404.0,
+            "peak_ratio": 39.19,
+            "tail_ratio": 1.61,
+            "peak_day": 50,
+            "n_days_above_2x": 11,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0024",
+            "topic": "Christoph Kolumbus",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The trend analysis indicates sustained growth in the mentions of Christoph Kolumbus, with a statistical confidence level of 95%.",
+            "lead_time": null,
+            "baseline": 1366.5,
+            "peak_ratio": 1.46,
+            "tail_ratio": 1.1,
+            "peak_day": 53,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0033",
+            "topic": "Der Brutalist",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The trend is sustained with a statistical confidence level of 95%, indicating a growing trend in the topic 'Der Brutalist'.",
+            "lead_time": null,
+            "baseline": 7966.0,
+            "peak_ratio": 7.38,
+            "tail_ratio": 0.16,
+            "peak_day": 33,
+            "n_days_above_2x": 1,
+            "bucket": "one-day spike"
+          },
+          {
+            "topic_id": "test-0053",
+            "topic": "Hollywood",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The statistical alarm indicates a sustained trend in the number of mentions of Hollywood, which aligns with the topic's ongoing growth. The data shows a consistent pattern over time, suggesting a genuine emerging trend.",
+            "lead_time": null,
+            "baseline": 283.5,
+            "peak_ratio": 1.41,
+            "tail_ratio": 1.03,
+            "peak_day": 40,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0079",
+            "topic": "Köln",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The trend in Köln shows sustained growth, with daily mentions fluctuating around the control limit of 1.56. This indicates a genuine emerging trend.",
+            "lead_time": null,
+            "baseline": 1556.0,
+            "peak_ratio": 2.43,
+            "tail_ratio": 0.96,
+            "peak_day": 33,
+            "n_days_above_2x": 1,
+            "bucket": "one-day spike"
+          },
+          {
+            "topic_id": "test-0102",
+            "topic": "Nena",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The topic 'Nena' shows sustained growth with a statistical confidence level of 95%, indicating a genuine emerging trend.",
+            "lead_time": null,
+            "baseline": 817.5,
+            "peak_ratio": 12.13,
+            "tail_ratio": 3.4,
+            "peak_day": 54,
+            "n_days_above_2x": 7,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0105",
+            "topic": "Noomi Rapace",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The trend is sustained and growing, with daily mentions showing a consistent upward trajectory. The statistical alarm indicates a true emerging trend rather than a false spike.",
+            "lead_time": null,
+            "baseline": 319.5,
+            "peak_ratio": 8.36,
+            "tail_ratio": 2.01,
+            "peak_day": 58,
+            "n_days_above_2x": 3,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0109",
+            "topic": "Pegging (Sexualpraktik)",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The trend is sustained with a daily mention count of 1264, indicating a growing trend in the topic 'Pegging (Sexualpraktik)'.",
+            "lead_time": null,
+            "baseline": 534.5,
+            "peak_ratio": 2.36,
+            "tail_ratio": 1.01,
+            "peak_day": 39,
+            "n_days_above_2x": 1,
+            "bucket": "one-day spike"
+          },
+          {
+            "topic_id": "test-0128",
+            "topic": "Sebastian (Heiliger)",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "Sebastian (Heiliger) is a trending topic with a sustained growth pattern, showing a confidence level of 98% based on the statistical analysis of daily mentions.",
+            "lead_time": null,
+            "baseline": 138.0,
+            "peak_ratio": 1.39,
+            "tail_ratio": 0.94,
+            "peak_day": 30,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0129",
+            "topic": "Signal (Messenger)",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "A sustained trend of signal messenger usage shows a positive growth trajectory, with daily mentions fluctuating around the control limit of 1.11.",
+            "lead_time": 24.0,
+            "baseline": 973.0,
+            "peak_ratio": 13.45,
+            "tail_ratio": 5.48,
+            "peak_day": 55,
+            "n_days_above_2x": 6,
+            "bucket": "sustained elevation"
+          }
+        ]
+      },
+      "false_negatives": {
+        "n": 14,
+        "by_bucket": {
+          "sustained elevation": 11,
+          "spike that already decayed inside the window": 3
+        },
+        "examples": [
+          {
+            "topic_id": "test-0066",
+            "topic": "John Roberts",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is not triggered for John Roberts. The daily mentions are spread across a range of values, indicating a potential trend but not a sustained or spreading growth.",
+            "lead_time": null,
+            "baseline": 70.0,
+            "peak_ratio": 65.89,
+            "tail_ratio": 4.16,
+            "peak_day": 48,
+            "n_days_above_2x": 29,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0075",
+            "topic": "Konklave (Film)",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is not triggered for the given topic and mentions. The trend is sustained and growing.",
+            "lead_time": null,
+            "baseline": 2630.0,
+            "peak_ratio": 7.74,
+            "tail_ratio": 0.96,
+            "peak_day": 33,
+            "n_days_above_2x": 18,
+            "bucket": "spike that already decayed inside the window"
+          },
+          {
+            "topic_id": "test-0114",
+            "topic": "Rainer Hunold",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is triggered at day 24, indicating a potential trend but with a high confidence level. The data points suggest a sustained growth trend, indicating an emerging trend.",
+            "lead_time": null,
+            "baseline": 161.0,
+            "peak_ratio": 121.67,
+            "tail_ratio": 9.33,
+            "peak_day": 51,
+            "n_days_above_2x": 38,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0123",
+            "topic": "SV Elversberg",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm indicates a potential trend, but the data points are not consistent enough to confirm an emerging trend. The daily mentions show a mixed pattern, with some spikes and declines, but no sustained or spreading growth.",
+            "lead_time": null,
+            "baseline": 154.5,
+            "peak_ratio": 11.46,
+            "tail_ratio": 2.32,
+            "peak_day": 32,
+            "n_days_above_2x": 18,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0139",
+            "topic": "Sydney Sweeney",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is not triggered, as the trend is sustained and the daily mentions show a consistent pattern rather than a false spike.",
+            "lead_time": null,
+            "baseline": 768.0,
+            "peak_ratio": 3.4,
+            "tail_ratio": 1.91,
+            "peak_day": 57,
+            "n_days_above_2x": 3,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0160",
+            "topic": "Winfried Glatzeder",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is not triggered by the trend. The daily mentions show a sustained and spreading growth trend, indicating an emerging trend.",
+            "lead_time": null,
+            "baseline": 396.5,
+            "peak_ratio": 7.58,
+            "tail_ratio": 0.55,
+            "peak_day": 44,
+            "n_days_above_2x": 4,
+            "bucket": "spike that already decayed inside the window"
+          },
+          {
+            "topic_id": "test-0199",
+            "topic": "Diana Shnaider",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The trend is sustained and growing, with daily mentions showing a consistent upward trend. The statistical alarm is within the control limit range, indicating a genuine emerging trend.",
+            "lead_time": null,
+            "baseline": 163.5,
+            "peak_ratio": 11.72,
+            "tail_ratio": 4.06,
+            "peak_day": 59,
+            "n_days_above_2x": 32,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0213",
+            "topic": "Fénix (wrestler)",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is not triggered for the Fénix (wrestler) trend. The data does not show sustained or spreading growth.",
+            "lead_time": null,
+            "baseline": 1523.0,
+            "peak_ratio": 6.06,
+            "tail_ratio": 2.23,
+            "peak_day": 59,
+            "n_days_above_2x": 12,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0228",
+            "topic": "Jasmine Paolini",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is not triggered for Jasmine Paolini. The daily mentions are spread across a range of values, indicating a potential trend but not a sustained or spreading growth.",
+            "lead_time": null,
+            "baseline": 403.0,
+            "peak_ratio": 26.79,
+            "tail_ratio": 11.41,
+            "peak_day": 57,
+            "n_days_above_2x": 18,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0263",
+            "topic": "Nuno Borges (tennis)",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is not triggered. The trend is sustained and growing, with daily mentions fluctuating around 500-600, indicating a genuine emerging trend.",
+            "lead_time": null,
+            "baseline": 62.5,
+            "peak_ratio": 17.34,
+            "tail_ratio": 1.41,
+            "peak_day": 28,
+            "n_days_above_2x": 23,
+            "bucket": "spike that already decayed inside the window"
+          }
+        ]
+      },
+      "positives_never_flagged_by_detector": {
+        "n": 2,
+        "examples": [
+          {
+            "topic_id": "test-0239",
+            "topic": "Lee Corso",
+            "baseline": 294.0,
+            "peak_ratio": 2.19,
+            "tail_ratio": 0.78,
+            "peak_day": 11,
+            "n_days_above_2x": 1
+          },
+          {
+            "topic_id": "test-0387",
+            "topic": "Ты (телесериал)",
+            "baseline": 1139.5,
+            "peak_ratio": 1.18,
+            "tail_ratio": 0.7,
+            "peak_day": 11,
+            "n_days_above_2x": 0
+          }
+        ]
+      }
+    },
+    {
+      "key": "qwen3:0.6b@subsample",
+      "arm": "llm_series_only",
+      "scope": "paired_subsample",
+      "n_scored": 40,
+      "false_positives": {
+        "n": 4,
+        "by_bucket": {
+          "sustained elevation": 1,
+          "one-day spike": 1,
+          "low-amplitude wobble around the baseline": 1,
+          "spike that already decayed inside the window": 1
+        },
+        "examples": [
+          {
+            "topic_id": "test-0102",
+            "topic": "Nena",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The topic 'Nena' shows sustained growth with a statistical confidence level of 95%, indicating a genuine emerging trend.",
+            "lead_time": null,
+            "baseline": 817.5,
+            "peak_ratio": 12.13,
+            "tail_ratio": 3.4,
+            "peak_day": 54,
+            "n_days_above_2x": 7,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0109",
+            "topic": "Pegging (Sexualpraktik)",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The trend is sustained with a daily mention count of 1264, indicating a growing trend in the topic 'Pegging (Sexualpraktik)'.",
+            "lead_time": null,
+            "baseline": 534.5,
+            "peak_ratio": 2.36,
+            "tail_ratio": 1.01,
+            "peak_day": 39,
+            "n_days_above_2x": 1,
+            "bucket": "one-day spike"
+          },
+          {
+            "topic_id": "test-0352",
+            "topic": "Мика",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The trend analysis indicates a sustained growth in the topic 'Мика' with a statistical confidence level of 95%, suggesting a genuine emerging trend.",
+            "lead_time": null,
+            "baseline": 95.5,
+            "peak_ratio": 1.95,
+            "tail_ratio": 1.07,
+            "peak_day": 55,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0366",
+            "topic": "Пётр III",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "The statistical alarm indicates sustained growth in the trend of Пётр III's influence, with daily mentions showing a consistent upward trajectory.",
+            "lead_time": null,
+            "baseline": 2738.5,
+            "peak_ratio": 2.37,
+            "tail_ratio": 1.02,
+            "peak_day": 32,
+            "n_days_above_2x": 2,
+            "bucket": "spike that already decayed inside the window"
+          }
+        ]
+      },
+      "false_negatives": {
+        "n": 2,
+        "by_bucket": {
+          "sustained elevation": 2
+        },
+        "examples": [
+          {
+            "topic_id": "test-0123",
+            "topic": "SV Elversberg",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm indicates a potential trend, but the data points are not consistent enough to confirm an emerging trend. The daily mentions show a mixed pattern, with some spikes and declines, but no sustained or spreading growth.",
+            "lead_time": null,
+            "baseline": 154.5,
+            "peak_ratio": 11.46,
+            "tail_ratio": 2.32,
+            "peak_day": 32,
+            "n_days_above_2x": 18,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0270",
+            "topic": "Rhea Ripley",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The statistical alarm is not triggered for Rhea Ripley as it does not meet the criteria for an emerging trend.",
+            "lead_time": null,
+            "baseline": 5896.0,
+            "peak_ratio": 5.29,
+            "tail_ratio": 2.05,
+            "peak_day": 34,
+            "n_days_above_2x": 13,
+            "bucket": "sustained elevation"
+          }
+        ]
+      },
+      "positives_never_flagged_by_detector": {
+        "n": 0,
+        "examples": []
+      }
+    },
+    {
+      "key": "qwen3:14b@subsample",
+      "arm": "llm_series_only",
+      "scope": "paired_subsample",
+      "n_scored": 40,
+      "false_positives": {
+        "n": 5,
+        "by_bucket": {
+          "spike that already decayed inside the window": 2,
+          "sustained elevation": 1,
+          "low-amplitude wobble around the baseline": 1,
+          "one-day spike": 1
+        },
+        "examples": [
+          {
+            "topic_id": "test-0102",
+            "topic": "Nena",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "Sustained growth with a significant spike on day 24, indicating potential emerging trend.",
+            "lead_time": null,
+            "baseline": 817.5,
+            "peak_ratio": 12.13,
+            "tail_ratio": 3.4,
+            "peak_day": 54,
+            "n_days_above_2x": 7,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0133",
+            "topic": "Sozialismus",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "Sustained increase in mentions with a sharp spike on day 25 indicates an emerging trend.",
+            "lead_time": null,
+            "baseline": 1005.0,
+            "peak_ratio": 1.76,
+            "tail_ratio": 0.62,
+            "peak_day": 25,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0206",
+            "topic": "Emma Watson",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "Sustained increase in mentions with a significant spike on day 17, indicating potential emerging trend.",
+            "lead_time": null,
+            "baseline": 8327.0,
+            "peak_ratio": 2.32,
+            "tail_ratio": 1.06,
+            "peak_day": 26,
+            "n_days_above_2x": 1,
+            "bucket": "one-day spike"
+          },
+          {
+            "topic_id": "test-0315",
+            "topic": "Вайдель, Алис",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "Sustained increase in mentions with a sharp spike on day 17, indicating potential emerging trend.",
+            "lead_time": 1.0,
+            "baseline": 1088.5,
+            "peak_ratio": 19.78,
+            "tail_ratio": 0.24,
+            "peak_day": 25,
+            "n_days_above_2x": 12,
+            "bucket": "spike that already decayed inside the window"
+          },
+          {
+            "topic_id": "test-0366",
+            "topic": "Пётр III",
+            "label": 0,
+            "gate_passed": true,
+            "gate_reason": "Sustained increase in mentions with a sharp spike on day 30 indicates an emerging trend.",
+            "lead_time": null,
+            "baseline": 2738.5,
+            "peak_ratio": 2.37,
+            "tail_ratio": 1.02,
+            "peak_day": 32,
+            "n_days_above_2x": 2,
+            "bucket": "spike that already decayed inside the window"
+          }
+        ]
+      },
+      "false_negatives": {
+        "n": 2,
+        "by_bucket": {
+          "low-amplitude wobble around the baseline": 1,
+          "quiet run-up (nothing visible yet)": 1
+        },
+        "examples": [
+          {
+            "topic_id": "test-0014",
+            "topic": "Asterix und Obelix gegen Caesar",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "Mentions show spikes but lack consistent growth; likely seasonal or noise.",
+            "lead_time": null,
+            "baseline": 88.5,
+            "peak_ratio": 1.92,
+            "tail_ratio": 1.32,
+            "peak_day": 54,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0134",
+            "topic": "Stand by Me – Das Geheimnis eines Sommers",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "Spike on day 22 appears to be an outlier, not part of a sustained trend.",
+            "lead_time": null,
+            "baseline": 343.0,
+            "peak_ratio": 5.4,
+            "tail_ratio": 0.81,
+            "peak_day": 22,
+            "n_days_above_2x": 1,
+            "bucket": "quiet run-up (nothing visible yet)"
+          }
+        ]
+      },
+      "positives_never_flagged_by_detector": {
+        "n": 0,
+        "examples": []
+      }
+    },
+    {
+      "key": "qwen3:0.6b|llm_full",
+      "arm": "llm_full",
+      "scope": "full_test_period",
+      "n_scored": 305,
+      "false_positives": {
+        "n": 0,
+        "by_bucket": {},
+        "examples": []
+      },
+      "false_negatives": {
+        "n": 21,
+        "by_bucket": {
+          "sustained elevation": 16,
+          "spike that already decayed inside the window": 3,
+          "low-amplitude wobble around the baseline": 1,
+          "quiet run-up (nothing visible yet)": 1
+        },
+        "examples": [
+          {
+            "topic_id": "test-0014",
+            "topic": "Asterix und Obelix gegen Caesar",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise is a normal day-to-day fluctuation in attention, as the article was already among the most-viewed pages before the window started.",
+            "lead_time": null,
+            "baseline": 88.5,
+            "peak_ratio": 1.92,
+            "tail_ratio": 1.32,
+            "peak_day": 54,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0066",
+            "topic": "John Roberts",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal fluctuation within the baseline range and does not indicate an emerging trend.",
+            "lead_time": null,
+            "baseline": 70.0,
+            "peak_ratio": 65.89,
+            "tail_ratio": 4.16,
+            "peak_day": 48,
+            "n_days_above_2x": 29,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0075",
+            "topic": "Konklave (Film)",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a sustained trend in attention to the 'Konklave (Film)' topic, with a statistical confidence level of 99%.",
+            "lead_time": null,
+            "baseline": 2630.0,
+            "peak_ratio": 7.74,
+            "tail_ratio": 0.96,
+            "peak_day": 33,
+            "n_days_above_2x": 18,
+            "bucket": "spike that already decayed inside the window"
+          },
+          {
+            "topic_id": "test-0078",
+            "topic": "Kristi Noem",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a sustained increase in attention to Kristi Noem, aligning with expected day-to-day fluctuations. The statistical alarm is based on a baseline period and indicates a true trend rather than a false spike.",
+            "lead_time": null,
+            "baseline": 335.5,
+            "peak_ratio": 14.87,
+            "tail_ratio": 4.2,
+            "peak_day": 57,
+            "n_days_above_2x": 8,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0108",
+            "topic": "Pedro Pascal",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal fluctuation within the expected range, indicating sustained attention to Pedro Pascal as an emerging trend.",
+            "lead_time": null,
+            "baseline": 971.5,
+            "peak_ratio": 5.3,
+            "tail_ratio": 3.78,
+            "peak_day": 58,
+            "n_days_above_2x": 9,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0114",
+            "topic": "Rainer Hunold",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise is a normal day-to-day fluctuation in attention, as the article was already among the most-viewed pages before the window started.",
+            "lead_time": null,
+            "baseline": 161.0,
+            "peak_ratio": 121.67,
+            "tail_ratio": 9.33,
+            "peak_day": 51,
+            "n_days_above_2x": 38,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0120",
+            "topic": "Roulette",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal fluctuation within the expected range, indicating sustained attention to the topic 'Roulette'.",
+            "lead_time": null,
+            "baseline": 2245.0,
+            "peak_ratio": 6.7,
+            "tail_ratio": 3.29,
+            "peak_day": 59,
+            "n_days_above_2x": 5,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0123",
+            "topic": "SV Elversberg",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal fluctuation within the baseline range, indicating sustained attention to the topic. The statistical alarm is not indicative of an emerging trend but rather a controlled fluctuation.",
+            "lead_time": null,
+            "baseline": 154.5,
+            "peak_ratio": 11.46,
+            "tail_ratio": 2.32,
+            "peak_day": 32,
+            "n_days_above_2x": 18,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0134",
+            "topic": "Stand by Me – Das Geheimnis eines Sommers",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal day-to-day fluctuation, not a false alarm. The statistical alert is based on historical data and the trend is expected to continue.",
+            "lead_time": null,
+            "baseline": 343.0,
+            "peak_ratio": 5.4,
+            "tail_ratio": 0.81,
+            "peak_day": 22,
+            "n_days_above_2x": 1,
+            "bucket": "quiet run-up (nothing visible yet)"
+          },
+          {
+            "topic_id": "test-0139",
+            "topic": "Sydney Sweeney",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal fluctuation within the expected range, indicating sustained attention to the topic rather than a false alarm.",
+            "lead_time": null,
+            "baseline": 768.0,
+            "peak_ratio": 3.4,
+            "tail_ratio": 1.91,
+            "peak_day": 57,
+            "n_days_above_2x": 3,
+            "bucket": "sustained elevation"
+          }
+        ]
+      },
+      "positives_never_flagged_by_detector": {
+        "n": 2,
+        "examples": [
+          {
+            "topic_id": "test-0239",
+            "topic": "Lee Corso",
+            "baseline": 294.0,
+            "peak_ratio": 2.19,
+            "tail_ratio": 0.78,
+            "peak_day": 11,
+            "n_days_above_2x": 1
+          },
+          {
+            "topic_id": "test-0387",
+            "topic": "Ты (телесериал)",
+            "baseline": 1139.5,
+            "peak_ratio": 1.18,
+            "tail_ratio": 0.7,
+            "peak_day": 11,
+            "n_days_above_2x": 0
+          }
+        ]
+      }
+    },
+    {
+      "key": "qwen3:0.6b|llm_full@subsample",
+      "arm": "llm_full",
+      "scope": "paired_subsample",
+      "n_scored": 40,
+      "false_positives": {
+        "n": 0,
+        "by_bucket": {},
+        "examples": []
+      },
+      "false_negatives": {
+        "n": 5,
+        "by_bucket": {
+          "sustained elevation": 3,
+          "low-amplitude wobble around the baseline": 1,
+          "quiet run-up (nothing visible yet)": 1
+        },
+        "examples": [
+          {
+            "topic_id": "test-0014",
+            "topic": "Asterix und Obelix gegen Caesar",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise is a normal day-to-day fluctuation in attention, as the article was already among the most-viewed pages before the window started.",
+            "lead_time": null,
+            "baseline": 88.5,
+            "peak_ratio": 1.92,
+            "tail_ratio": 1.32,
+            "peak_day": 54,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0123",
+            "topic": "SV Elversberg",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal fluctuation within the baseline range, indicating sustained attention to the topic. The statistical alarm is not indicative of an emerging trend but rather a controlled fluctuation.",
+            "lead_time": null,
+            "baseline": 154.5,
+            "peak_ratio": 11.46,
+            "tail_ratio": 2.32,
+            "peak_day": 32,
+            "n_days_above_2x": 18,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0134",
+            "topic": "Stand by Me – Das Geheimnis eines Sommers",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal day-to-day fluctuation, not a false alarm. The statistical alert is based on historical data and the trend is expected to continue.",
+            "lead_time": null,
+            "baseline": 343.0,
+            "peak_ratio": 5.4,
+            "tail_ratio": 0.81,
+            "peak_day": 22,
+            "n_days_above_2x": 1,
+            "bucket": "quiet run-up (nothing visible yet)"
+          },
+          {
+            "topic_id": "test-0223",
+            "topic": "Ilia Malinin",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal fluctuation within the expected range, indicating sustained attention to the topic.",
+            "lead_time": null,
+            "baseline": 1027.5,
+            "peak_ratio": 15.27,
+            "tail_ratio": 4.7,
+            "peak_day": 1,
+            "n_days_above_2x": 7,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0270",
+            "topic": "Rhea Ripley",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The current rise in daily mentions is a normal day-to-day fluctuation within the expected range, indicating a sustained trend rather than a false alarm.",
+            "lead_time": null,
+            "baseline": 5896.0,
+            "peak_ratio": 5.29,
+            "tail_ratio": 2.05,
+            "peak_day": 34,
+            "n_days_above_2x": 13,
+            "bucket": "sustained elevation"
+          }
+        ]
+      },
+      "positives_never_flagged_by_detector": {
+        "n": 0,
+        "examples": []
+      }
+    },
+    {
+      "key": "qwen3:14b|llm_full@subsample",
+      "arm": "llm_full",
+      "scope": "paired_subsample",
+      "n_scored": 40,
+      "false_positives": {
+        "n": 0,
+        "by_bucket": {},
+        "examples": []
+      },
+      "false_negatives": {
+        "n": 5,
+        "by_bucket": {
+          "sustained elevation": 3,
+          "low-amplitude wobble around the baseline": 1,
+          "quiet run-up (nothing visible yet)": 1
+        },
+        "examples": [
+          {
+            "topic_id": "test-0014",
+            "topic": "Asterix und Obelix gegen Caesar",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "The spike on day 49 (170 views) appears isolated, with no sustained growth afterward; volatility and prior high views suggest noise or seasonal fluctuation.",
+            "lead_time": null,
+            "baseline": 88.5,
+            "peak_ratio": 1.92,
+            "tail_ratio": 1.32,
+            "peak_day": 54,
+            "n_days_above_2x": 0,
+            "bucket": "low-amplitude wobble around the baseline"
+          },
+          {
+            "topic_id": "test-0123",
+            "topic": "SV Elversberg",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "High volatility and single spike on day 10 (917) suggest noise or seasonal fluctuation, not a sustained trend.",
+            "lead_time": null,
+            "baseline": 154.5,
+            "peak_ratio": 11.46,
+            "tail_ratio": 2.32,
+            "peak_day": 32,
+            "n_days_above_2x": 18,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0134",
+            "topic": "Stand by Me – Das Geheimnis eines Sommers",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "Spike on day 22 appears to be an outlier, likely due to a one-off event rather than sustained growth.",
+            "lead_time": null,
+            "baseline": 343.0,
+            "peak_ratio": 5.4,
+            "tail_ratio": 0.81,
+            "peak_day": 22,
+            "n_days_above_2x": 1,
+            "bucket": "quiet run-up (nothing visible yet)"
+          },
+          {
+            "topic_id": "test-0223",
+            "topic": "Ilia Malinin",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "Spikes appear irregular and may be due to news cycles or anomalies, not sustained growth.",
+            "lead_time": null,
+            "baseline": 1027.5,
+            "peak_ratio": 15.27,
+            "tail_ratio": 4.7,
+            "peak_day": 1,
+            "n_days_above_2x": 7,
+            "bucket": "sustained elevation"
+          },
+          {
+            "topic_id": "test-0270",
+            "topic": "Rhea Ripley",
+            "label": 1,
+            "gate_passed": false,
+            "gate_reason": "Spikes appear irregular and may be due to news cycles or seasonal fluctuations, not a sustained trend.",
+            "lead_time": null,
+            "baseline": 5896.0,
+            "peak_ratio": 5.29,
+            "tail_ratio": 2.05,
+            "peak_day": 34,
+            "n_days_above_2x": 13,
+            "bucket": "sustained elevation"
+          }
+        ]
+      },
+      "positives_never_flagged_by_detector": {
+        "n": 0,
+        "examples": []
+      }
+    }
+  ]
+}

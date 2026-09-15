@@ -1,0 +1,149 @@
+{
+  "phase": "PHASE 9 - performance",
+  "environment": {
+    "python": "3.14.7",
+    "platform": "Linux-6.8.0-139-generic-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "cpu_count": 6,
+    "total_memory_gb": 11.68,
+    "peak_rss_mb": 27.1,
+    "gpu": {
+      "available": false,
+      "note": "GPU benchmark unavailable in this environment"
+    }
+  },
+  "workload": {
+    "dataset": "/tmp/gh-issue-solver-1789484631516/artifacts/real_world_dataset.test.jsonl",
+    "n_prompts": 12,
+    "selection": "first N alarms in dataset order",
+    "cache": "disabled (a cached verdict would measure the filesystem)"
+  },
+  "models": {
+    "qwen3:0.6b": {
+      "status": "measured",
+      "model": "qwen3:0.6b",
+      "n_prompts": 12,
+      "inference_mode": {
+        "host": "http://localhost:11434",
+        "model": "qwen3:0.6b",
+        "think": false,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "seed": 42,
+        "num_ctx": 4096,
+        "num_predict": 256,
+        "timeout": 120.0,
+        "retries": 2,
+        "options": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "seed": 42,
+          "num_ctx": 4096,
+          "num_predict": 256
+        }
+      },
+      "model_details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen3",
+        "families": [
+          "qwen3"
+        ],
+        "parameter_size": "751.63M",
+        "quantization_level": "Q4_K_M"
+      },
+      "latency": {
+        "n": 12,
+        "mean_s": 7.266,
+        "median_s": 6.749,
+        "p95_s": 10.929,
+        "max_s": 11.532
+      },
+      "server_timings_mean_s": {
+        "load_duration": 0.456,
+        "prompt_eval_duration": 3.443,
+        "eval_duration": 3.172,
+        "total_duration": 7.259
+      },
+      "tokens_per_second": {
+        "mean": 20.78,
+        "samples": 12
+      },
+      "prompt_size_chars": {
+        "mean": 974.0,
+        "max": 1025
+      },
+      "failure_rate": 0.0,
+      "json_validity": 1.0,
+      "transport_errors": 0,
+      "silent_retries": 0,
+      "socket_timeout_s": 120.0,
+      "invalid_json": 0,
+      "wall_clock_s": 87.21,
+      "prompts_per_minute": 8.26
+    },
+    "qwen3:14b": {
+      "status": "measured",
+      "model": "qwen3:14b",
+      "n_prompts": 12,
+      "inference_mode": {
+        "host": "http://localhost:11434",
+        "model": "qwen3:14b",
+        "think": false,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "seed": 42,
+        "num_ctx": 4096,
+        "num_predict": 256,
+        "timeout": 120.0,
+        "retries": 2,
+        "options": {
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "seed": 42,
+          "num_ctx": 4096,
+          "num_predict": 256
+        }
+      },
+      "model_details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen3",
+        "families": [
+          "qwen3"
+        ],
+        "parameter_size": "14.8B",
+        "quantization_level": "Q4_K_M"
+      },
+      "latency": {
+        "n": 12,
+        "mean_s": 25.711,
+        "median_s": 24.781,
+        "p95_s": 34.776,
+        "max_s": 35.315
+      },
+      "server_timings_mean_s": {
+        "load_duration": 0.013,
+        "prompt_eval_duration": 1.54,
+        "eval_duration": 22.742,
+        "total_duration": 25.7
+      },
+      "tokens_per_second": {
+        "mean": 2.04,
+        "samples": 12
+      },
+      "prompt_size_chars": {
+        "mean": 974.0,
+        "max": 1025
+      },
+      "failure_rate": 0.0,
+      "json_validity": 1.0,
+      "transport_errors": 0,
+      "silent_retries": 0,
+      "socket_timeout_s": 120.0,
+      "invalid_json": 0,
+      "wall_clock_s": 308.54,
+      "prompts_per_minute": 2.33
+    }
+  }
+}
