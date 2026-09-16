@@ -6,7 +6,7 @@ import pytest
 
 from conftest import chat_response
 from smartgate.dataset import generate_dataset
-from smartgate.llm_gate import LLMGate, build_prompt, heuristic_verdict, parse_verdict
+from smartgate.llm_gate import GateFeatures, LLMGate, build_prompt, heuristic_verdict, parse_verdict
 from smartgate.ollama_client import OllamaError
 
 SAMPLE = generate_dataset(10, seed=99)[0]
@@ -37,6 +37,14 @@ def test_confidence_is_clamped_and_coerced():
     assert parse_verdict('{"is_emerging": false, "confidence": 7}')["confidence"] == 1.0
     assert parse_verdict('{"is_emerging": false, "confidence": -1}')["confidence"] == 0.0
     assert parse_verdict('{"is_emerging": false, "confidence": "high"}')["confidence"] == 0.5
+
+
+def test_full_prompt_separates_semantic_and_numeric_evidence():
+    prompt = build_prompt(SAMPLE, 20, 1.3, GateFeatures())
+    assert "SEMANTIC EVIDENCE (independent of the time series)" in prompt
+    assert "NUMERIC EVIDENCE (pageview time series)" in prompt
+    assert prompt.index("SEMANTIC EVIDENCE") < prompt.index("NUMERIC EVIDENCE")
+    assert "Use both evidence channels" in prompt
 
 
 @pytest.mark.parametrize("text", ["", "no json here", "[1, 2, 3]", '{"foo": 1}'])

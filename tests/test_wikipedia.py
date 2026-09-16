@@ -140,6 +140,25 @@ def test_top_list_drops_navigation_pages(fake_api):
     assert fake_api.client().top_articles("en.wikipedia", date(2024, 1, 1)) == ["Real_Topic"]
 
 
+def test_article_summary_is_external_semantic_evidence(fake_api, monkeypatch):
+    """The gate context must come from article content, not pageview derivatives."""
+    monkeypatch.setattr(wikipedia, "SUMMARY_ROOT", wikipedia.API_ROOT + "/summary")
+    fake_api.set(
+        "/summary/en/page/Artificial%20intelligence/description",
+        {"description": "Intelligence of machines"},
+    )
+    client = fake_api.client()
+    summary = client.article_summary("en.wikipedia", "Artificial_intelligence")
+    assert summary == {"description": "Intelligence of machines"}
+    assert client.article_summary("en.wikipedia", "Artificial_intelligence") == summary
+    assert len(fake_api.seen) == 1
+
+
+def test_missing_article_summary_degrades_to_empty_context(fake_api, monkeypatch):
+    monkeypatch.setattr(wikipedia, "SUMMARY_ROOT", wikipedia.API_ROOT + "/summary")
+    assert fake_api.client().article_summary("en.wikipedia", "Missing") == {}
+
+
 @pytest.mark.parametrize(
     "article,expected",
     [("Main_Page", True), ("Special:Random", True), ("Заглавная_страница", True),

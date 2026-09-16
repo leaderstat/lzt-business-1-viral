@@ -23,10 +23,11 @@ from .dataset import Sample
 from .ollama_client import ChatResult, OllamaClient, OllamaError
 
 SYSTEM_PROMPT = (
-    "You are a trend analyst. You receive a topic, a short context and a daily mention "
+    "You are a trend analyst. You receive independent semantic evidence and a pageview "
     "series that already triggered a statistical alarm. Decide whether this is a genuine "
     "EMERGING TREND (sustained, spreading growth) or a FALSE ALARM (one-off spike, "
-    "seasonal wave, or plain noise). Answer with JSON only."
+    "seasonal wave, or plain noise). Treat the article description as background, not as "
+    "proof of growth. Answer with JSON only."
 )
 
 RESPONSE_SCHEMA = {
@@ -93,7 +94,10 @@ def build_prompt(
     features = features or GateFeatures()
     lines = [f"Topic: {sample.topic}"]
     if features.use_context and sample.context:
+        lines.append("SEMANTIC EVIDENCE (independent of the time series)")
         lines.append(f"Context: {sample.context}")
+    if features.use_alarm or features.use_series:
+        lines.append("NUMERIC EVIDENCE (pageview time series)")
     if features.use_alarm:
         lines.append(f"Statistical alarm at day: {alarm_index}")
         lines.append(f"Alarm strength (1.0 = control limit): {alarm_score:.2f}")
@@ -101,6 +105,11 @@ def build_prompt(
         series = ", ".join(f"{v:g}" for v in sample.series)
         lines.append(f"Daily mentions (day 0 first): {series}")
     lines.append("")
+    if features.use_context and (features.use_alarm or features.use_series):
+        lines.append(
+            "Use both evidence channels: semantics explain what the topic is; only the "
+            "numeric evidence establishes whether attention is sustained and emerging."
+        )
     lines.append(
         'Reply with JSON: {"is_emerging": bool, "confidence": 0..1, "reason": "<=200 chars"}'
     )
